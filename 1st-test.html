@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第１回確認テスト（人体の構造）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      background-size: cover; 
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+
+}
+    .quiz-container, .result-card {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      color: #1d1d1f;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .option {
+      background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease 0.1s, transform 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .option:hover {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .option.selected {
+      background-color: #007aff;
+      color: #fff;
+    }
+    .option.disabled {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+      }
+    /* 正解時のグラデーション */
+.option.correct {
+  background: linear-gradient(135deg, #34c759, #a8e6cf); /* 正解のグラデーション */
+  color: #fff;
+}
+
+/* 不正解時のグラデーション */
+.option.incorrect {
+  background: linear-gradient(135deg, #ff3b30, #ff9a8b); /* 不正解のグラデーション */
+  color: #fff;
+}
+
+    .option::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option:active::after {
+      transform: scale(0.98);
+    }
+    .explanation {
+  margin-top: 20px;
+  font-size: 1em;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-left: 5px solid #4caf50;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 1; /* 修正 */
+  transition: opacity 0.3s ease;
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.explanation-icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+    .nav-button {
+  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover {
+  background: linear-gradient(135deg, #005bb5, #4aa0d3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button:active {
+  transform: scale(0.98);
+}
+    .result-card {
+      margin-bottom: 20px;
+    }
+    .result-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .result-status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .correct {
+      color: #34c759;
+    }
+    .incorrect {
+      color: #ff3b30;
+    }
+    #attendance-link {
+      background-color: #34c759;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+    #attendance-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #attendance-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center;">第１回確認テスト（人体の構造）</h1>
+    <div id="quiz-container" class="quiz-container">
+      <div id="quiz-content">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div id="result-container"></div>
+    <div id="attendance-link"></div>
+  </div>
+  
+  
+  <script>
+    const quizData = [
+{
+"question": "運動ニューロンについて誤っているものはどれか？",
+"options": [
+"α運動ニューロンは筋線維を収縮させる",
+"γ運動ニューロンは筋紡錘を収縮させる",
+"脊髄では後角にある",
+"脳幹では動眼神経などの起始核にある"
+],
+"answer": 2,
+"explanation": "運動ニューロンは脊髄では前角にあります。後角は感覚神経の入力を受ける部分です。α運動ニューロンは筋線維を、γ運動ニューロンは筋紡錘を収縮させ、脳幹では様々な脳神経の起始核に存在します。"
+},
+{
+"question": "錐体路について正しいものはどれか？",
+"options": [
+"延髄上端で交差する",
+"すべての線維が交差する",
+"大脳皮質運動野から始まる",
+"小脳を経由して下行する"
+],
+"answer": 2,
+"explanation": "錐体路は大脳皮質運動野から始まり、内包→大脳脚→橋底部→延髄の錐体を通って下行します。延髄下端の錐体交叉で大部分の線維が交差しますが、一部は交差せず前皮質脊髄路として下行します。小脳は経由しません。"
+},
+{
+"question": "感覚の分類について、特殊感覚に含まれないものはどれか？",
+"options": [
+"視覚",
+"触覚",
+"聴覚",
+"嗅覚"
+],
+"answer": 1,
+"explanation": "触覚は体性感覚に分類されます。特殊感覚には、視覚、聴覚、平衡覚、嗅覚、味覚が含まれます。これらは頭部にある特殊な感覚器で受容される感覚です。"
+},
+{
+"question": "感覚の性質について正しいものはどれか？",
+"options": [
+"感覚の強さは刺激の差で決まる",
+"感覚の強さは刺激の比で決まる",
+"順応現象は起こらない",
+"後効果は存在しない"
+],
+"answer": 1,
+"explanation": "感覚の強さは刺激の差ではなく比で決まります。例えば1gと2gの違いは、10gと20gの違いに相当します。また、同じ刺激を続けると順応が起こり、その後に後効果が現れることがあります。"
+},
+{
+"question": "皮膚の感覚受容器について誤っているものはどれか？",
+"options": [
+"マイスネル小体は触覚を感知する",
+"温度受容器は自由神経終末に分布する",
+"痛覚受容器は被覆された特殊な終末である",
+"ファーターパチニ小体は振動を検知する"
+],
+"answer": 2,
+"explanation": "痛覚受容器（侵害受容器）は自由神経終末に分布するイオンチャネルです。被覆された特殊な終末ではありません。これらは温度、カプサイシン、酸など複数の刺激に反応します。"
+},
+{
+"question": "深部感覚の受容器について正しいものはどれか？",
+"options": [
+"筋紡錘は筋の張力を検知する",
+"ゴルジ腱器官は筋の長さを検知する",
+"筋紡錘は筋の長さを検知する",
+"どちらも痛覚を検知する"
+],
+"answer": 2,
+"explanation": "筋紡錘は筋の長さ・伸展を検知し、ゴルジ腱器官は筋の張力を検知します。これらの情報により、関節の位置や動きの感覚が生じます。"
+},
+{
+"question": "感覚点の分布について誤っているものはどれか？",
+"options": [
+"触点は顔や指で最も多い",
+"温点は冷点より多い",
+"痛点が最も多い",
+"大腿部の触点は少ない"
+],
+"answer": 1,
+"explanation": "冷点のほうが温点よりも数が多いことが知られています。また、痛点の数が最も多く、触点は顔や指などの敏感な部位で多く、大腿部などでは少なくなっています。"
+},
+{
+"question": "上行伝導路について正しいものはどれか？",
+"options": [
+"一次ニューロンのみである",
+"常に同側を上行する",
+"複数のニューロンを経由する",
+"運動指令のみを伝える"
+],
+"answer": 2,
+"explanation": "上行伝導路は中枢内で2つ以上のニューロンを経過して大脳皮質に達します。一次、二次、三次ニューロンと呼ばれ、感覚情報を脳に伝えます。また、多くの経路で交差が見られます。"
+},
+{
+"question": "後索-内側毛帯路が伝える感覚はどれか？",
+"options": [
+"粗大な触覚",
+"温度覚",
+"痛覚",
+"精細な触覚"
+],
+"answer": 3,
+"explanation": "後索-内側毛帯路は精細な触覚や筋の伸長状態などの固有感覚を伝える経路です。粗大な触覚は前脊髄視床路、温度覚と痛覚は外側脊髄視床路を通ります。"
+},
+{
+"question": "視覚伝導路について正しいものはどれか？",
+"options": [
+"すべての視神経が交差する",
+"視交叉で半分の線維が交差する",
+"一次ニューロンは神経節細胞である",
+"視放線は前頭葉に達する"
+],
+"answer": 1,
+"explanation": "視交叉では視神経の半分の線維が交差し、視野の左半からの情報が右脳に、右半からの情報が左脳に集まります。また、視放線は後頭葉の視覚野に達します。"
+},
+{
+"question": "聴覚伝導路について誤っているものはどれか？",
+"options": [
+"蝸牛神経核で中継される",
+"外側毛帯を上行する",
+"後頭葉に終わる",
+"内側膝状体を経由する"
+],
+"answer": 2,
+"explanation": "聴覚伝導路は側頭葉の聴覚野に終わります。蝸牛神経核、外側毛帯、内側膝状体を経由するのは正しい記述です。"
+},
+{
+"question": "内臓感覚に含まれるものはどれか？",
+"options": [
+"触覚",
+"臓器感覚",
+"視覚",
+"固有感覚"
+],
+"answer": 1,
+"explanation": "内臓感覚には臓器感覚と内臓痛覚が含まれます。触覚は体性感覚、視覚は特殊感覚、固有感覚は体性感覚に分類されます。"
+},
+{
+"question": "順応現象について正しいものはどれか？",
+"options": [
+"刺激が強くなる現象",
+"感覚が強くなる現象",
+"感覚が弱くなる現象",
+"刺激がなくなる現象"
+],
+"answer": 2,
+"explanation": "順応（adaptation）は、同じ感覚刺激を与え続けると感覚が弱くなる現象を指します。これにより、神経系のバランスが崩れると後効果が現れることがあります。"
+},
+{
+"question": "皮質核路について正しいものはどれか？",
+"options": [
+"小脳に終わる",
+"脊髄前角に終わる",
+"脳神経の運動ニューロンに終わる",
+"視床に終わる"
+],
+"answer": 2,
+"explanation": "皮質核路は、錐体路と同様の線維ですが、脳幹にある脳神経の運動ニューロンに終わります。これは顔面や咽頭などの随意運動の制御に関与します。"
+},
+{
+"question": "侵害受容器について正しいものはどれか？",
+"options": [
+"振動のみを感知する",
+"複数の刺激に反応する",
+"温度変化には反応しない",
+"被覆された特殊な終末である"
+],
+"answer": 1,
+"explanation": "侵害受容器は43℃以上の温度、カプサイシン、酸（H⁺）など複数の刺激に反応する自由神経終末に分布するイオンチャネルです。"
+},
+{
+"question": "体性感覚について誤っているものはどれか？",
+"options": [
+"皮膚感覚を含む",
+"深部感覚を含む",
+"特殊感覚を含む",
+"固有感覚を含む"
+],
+"answer": 2,
+"explanation": "体性感覚には皮膚感覚と深部感覚が含まれ、固有感覚も含まれます。特殊感覚（視覚、聴覚、平衡覚、嗅覚、味覚）は別のカテゴリーです。"
+},
+{
+"question": "外側脊髄視床路が伝える感覚はどれか？",
+"options": [
+"精細な触覚",
+"痛覚と温度覚",
+"粗大な触覚",
+"固有感覚"
+],
+"answer": 1,
+"explanation": "外側脊髄視床路は痛覚と温度覚を伝える経路です。精細な触覚は後索-内側毛帯路、粗大な触覚は前脊髄視床路を通ります。"
+},
+{
+"question": "視覚の二次ニューロンはどれか？",
+"options": [
+"視細胞",
+"双極細胞",
+"神経節細胞",
+"外側膝状体細胞"
+],
+"answer": 2,
+"explanation": "視覚の伝導路では、双極細胞が一次ニューロン、神経節細胞が二次ニューロンとなります。神経節細胞の軸索は視神経となります。"
+},
+{
+"question": "聴覚伝導路の一次ニューロンの細胞体はどこにあるか？",
+"options": [
+"蝸牛神経核",
+"蝸牛神経節",
+"下丘",
+"内側膝状体"
+],
+"answer": 1,
+"explanation": "聴覚を伝える内耳神経の一次ニューロンは、内耳に近い蝸牛神経節の中にあります。ここから軸索が延び、蝸牛神経核に達します。"
+},
+{
+"question": "錐体外路症状を引き起こす可能性があるのはどの部位の異常か？",
+"options": [
+"脊髄前角",
+"後索",
+"大脳基底核",
+"後根神経節"
+],
+"answer": 2,
+"explanation": "錐体外路症状は、大脳基底核・小脳からの出力系の異常により生じます。これらの構造は運動の調節に重要な役割を果たしています。"
+}
+]
+;
+
+      let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let shuffledOptions = [];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+
+      shuffledOptions = shuffleArray([...question.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      document.getElementById('options').innerHTML = optionsHtml;
+
+      // 解説のリセット
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.style.opacity = '0';
+      explanationEl.style.display = 'none';
+    }
+
+    function selectOption(index) {
+  const options = document.querySelectorAll('.option');
+  if (options[index].classList.contains('disabled')) {
+    return;
+  }
+
+  // すべての選択肢を無効化
+  options.forEach(option => {
+    option.classList.add('disabled');
+  });
+
+  // 選択肢を選んだときに`selected`クラスを追加
+  options[index].classList.add('selected');
+
+  // 現在の問題を取得
+  const question = quizData[currentQuestion];
+  const selectedAnswerIndex = question.options.indexOf(shuffledOptions[index]);
+  userAnswers[currentQuestion] = selectedAnswerIndex;
+
+  // 解説の表示内容を設定
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.innerHTML = `
+    <div class="explanation-header">
+      <span class="explanation-icon">💡</span>
+      解説
+    </div>
+    ${question.explanation}
+  `;
+  
+  // 一旦解説を見えないようにしてから表示の遅延を設定
+  explanationEl.style.opacity = '0';
+  explanationEl.style.display = 'block'; // まず表示を「block」にする
+
+  // 遅延を設定して解説をフェードイン
+  setTimeout(() => {
+    explanationEl.style.opacity = '1'; // 遅れてopacityを1にする
+  }, 200); // 200msの遅延を設定
+
+  // 正解・不正解のクラスを付与してグラデーションを適用
+  if (selectedAnswerIndex === question.answer) {
+    explanationEl.style.backgroundColor = '#e8f5e9';
+    explanationEl.style.borderLeftColor = '#4caf50';
+    options[index].classList.add('correct'); // 正解時に`correct`クラスを追加
+  } else {
+    explanationEl.style.backgroundColor = '#ffebee';
+    explanationEl.style.borderLeftColor = '#f44336';
+    options[index].classList.add('incorrect'); // 不正解時に`incorrect`クラスを追加
+  }
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+  explanationEl.style.opacity = '0'; // 解説のopacityをリセット
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+}
+    function nextQuestion() {
+      const selectedOption = document.querySelector('.option.selected');
+      if (selectedOption === null) {
+        alert('選択肢を選んでください');
+        return; 
+      }
+
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      score = userAnswers.reduce((total, answer, index) => 
+        total + (answer === quizData[index].answer ? 1 : 0), 0);
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.style.display = 'none';
+
+      const percentage = (score / quizData.length) * 100;
+      let resultHtml = `
+        <h2>クイズ結果</h2>
+        <p>正解数: ${score} / ${quizData.length}</p>
+        <p>正答率: ${percentage.toFixed(2)}%</p>
+      `;
+
+      quizData.forEach((question, index) => {
+        const isCorrect = userAnswers[index] === question.answer;
+        resultHtml += `
+          <div class="result-card">
+            <h3>問題 ${index + 1}</h3>
+            <p class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+              ${isCorrect ? '正解' : '不正解'}
+            </p>
+            <p><strong>質問:</strong> ${question.question}</p>
+            <p><strong>あなたの回答:</strong> ${question.options[userAnswers[index]] || '未回答'}</p>
+            <p><strong>正解:</strong> ${question.options[question.answer]}</p>
+            <p><strong>説明:</strong> ${question.explanation}</p>
+          </div>
+        `;
+      });
+
+      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
+      resultContainer.innerHTML = resultHtml;
+
+      if (percentage >= 80) {
+        const attendanceLink = document.getElementById('attendance-link');
+        attendanceLink.style.display = 'block';
+        attendanceLink.innerHTML = `
+          <p>おめでとうございます！80%以上の正答率です。</p>
+          <a href="https://forms.gle/9YBLTaRdjjmTEjAh9" target="_blank">出席確認フォームに回答する</a>
+        `;
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      shuffledOptions = [];
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = '';
+      document.getElementById('attendance-link').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

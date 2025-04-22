@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第2回確認テスト（人体の構造）- ブルーグリーン系</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      /* 背景をブルーグリーン系グラデーションに変更 */
+      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 700;
+      /* 見出しの色を濃い青に */
+      color: #0d47a1; /* 濃い青 */
+    }
+    .quiz-container, .result-card {
+      background-color: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      /* 問題文の色を少し濃い青に */
+      color: #0277bd;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .option {
+      background-color: rgba(255, 255, 255, 0.75);
+      border: none;
+      border-radius: 16px;
+      padding: 15px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease 0.1s, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* color transition追加 */
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      /* オプション文字色を青系に */
+      color: #01579b;
+    }
+    /* option:hover の背景を明るい青系グラデーションに変更 */
+    .option:hover {
+      background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      color: #fff; /* ホバー時の文字色を白に */
+    }
+    .option.selected {
+      /* 選択時の基本色を青系に */
+      background-color: #03a9f4; /* 少し明るい青 */
+      color: #fff;
+    }
+    /* option.disabled の背景を hover と同じ明るい青系グラデーションに変更 */
+    .option.disabled {
+      background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+      color: #e0f7fa; /* 無効時の文字色 (薄い水色) */
+      opacity: 0.8; /* 少し透明度を下げる */
+    }
+    /* 正解時のグラデーションを緑系に変更 */
+    .option.correct {
+      background: linear-gradient(135deg, #56ab2f, #a8e063);
+      color: #fff;
+      opacity: 1; /* 正解は透明度を戻す */
+    }
+    /* 不正解時のグラデーションを赤系に変更 */
+    .option.incorrect {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: #fff;
+      opacity: 1; /* 不正解は透明度を戻す */
+    }
+
+    .option::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option:active::after {
+      transform: scale(0.98);
+    }
+
+    .explanation {
+      margin-top: 20px;
+      font-size: 1em;
+      color: #333;
+      /* 解説の初期背景を薄い水色の半透明に */
+      background-color: rgba(224, 247, 250, 0.85);
+      backdrop-filter: blur(10px);
+      /* 解説の初期ボーダーを青に */
+      border-left: 5px solid #0288d1;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      opacity: 0; /* 初期状態は非表示 */
+      display: none; /* 初期状態は非表示 */
+      transition: opacity 0.3s ease;
+    }
+
+    .explanation-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+      /* 解説ヘッダーの色を青に */
+      color: #0288d1;
+    }
+
+    .explanation-icon {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+    /* ナビゲーションボタンの背景を青系グラデーションに変更 */
+    .nav-button {
+      background: linear-gradient(135deg, #2196F3, #4FC3F7);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    /* ナビゲーションボタンのホバー背景を少し濃い青系グラデーションに変更 */
+    .nav-button:hover {
+      background: linear-gradient(135deg, #1976d2, #29b6f6);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-button:active {
+      transform: scale(0.98);
+    }
+    .result-card {
+      margin-bottom: 20px;
+    }
+    .result-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      /* 結果カードの見出し色を調整 */
+      color: #0d47a1;
+    }
+    .result-status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    /* 正解ステータスの文字色を緑系に変更 */
+    .correct {
+      color: #56ab2f; /* 緑系 */
+    }
+    /* 不正解ステータスの文字色を赤系に変更 */
+    .incorrect {
+      color: #ff416c; /* 赤系 */
+    }
+    /* 出席リンクの背景を青系に変更 */
+    #attendance-link {
+      background-color: #2196F3; /* 青系 */
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      display: none; /* 初期状態は非表示 */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #attendance-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #attendance-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>第2回確認テスト（人体の構造）</h1>
+    <div id="quiz-container" class="quiz-container">
+      <div id="quiz-content">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <!-- 解説エリアの初期スタイルはCSSで設定 -->
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div id="result-container"></div>
+    <div id="attendance-link"></div>
+  </div>
+
+
+  <script>
+    const quizData = [
+      // (省略: 問題データは変更なし)
+      {
+        "question": "骨格筋の主な機能として誤っているものはどれですか？",
+        "options": [
+          "意識的な思考",
+          "運動を起こす",
+          "姿勢の維持",
+          "体温の産生"
+        ],
+        "answer": 0,
+        "explanation": "意識的な思考は脳の機能であり、骨格筋の主な機能ではありません。"
+      },
+      {
+        "question": "筋組織は３種類に分類されますが、そのうち随意的に制御できるのはどれですか？",
+        "options": [
+          "心筋組織",
+          "平滑筋組織",
+          "骨格筋組織",
+          "全ての筋組織"
+        ],
+        "answer": 2,
+        "explanation": "骨格筋は意識的に動かすことができる随意筋です。心筋と平滑筋は不随意筋です。"
+      },
+      {
+        "question": "骨格筋線維の収縮に関わる主要なタンパク質フィラメントの組み合わせとして正しいものはどれですか？",
+        "options": [
+          "アクチンとトロポニン",
+          "ミオシンとトロポミオシン",
+          "アクチンとミオシン",
+          "トロポニンとトロポミオシン"
+        ],
+        "answer": 2,
+        "explanation": "アクチンフィラメントとミオシンフィラメントが相互作用することで筋収縮が起こります。"
+      },
+      {
+        "question": "骨格筋の収縮は、運動ニューロンから放出される特定の神経伝達物質によって開始されます。その神経伝達物質は何ですか？",
+        "options": [
+          "ノルアドレナリン",
+          "ドーパミン",
+          "セロトニン",
+          "アセチルコリン"
+        ],
+        "answer": 3,
+        "explanation": "運動ニューロンの終末から放出されるアセチルコリンが筋線維の受容体に結合し、筋収縮を引き起こします。"
+      },
+      {
+        "question": "心筋組織の大きな特徴である「不随意性」とは、その収縮と弛緩がどういう意味ですか？",
+        "options": [
+          "非常に速い速度で起こる",
+          "非常に強い力で起こる",
+          "個人の意識的な制御下にはない",
+          "疲労を起こしにくい"
+        ],
+        "answer": 2,
+        "explanation": "心筋の収縮は自律神経系によって調節され、意識的にコントロールすることはできません。"
+      },
+      {
+        "question": "平滑筋組織は、その分布と機能によって単一ユニット平滑筋組織と多元ユニット平滑筋組織に分類されます。内臓壁などに存在し、刺激が全体に広がり同期して収縮するタイプはどちらですか？",
+        "options": [
+          "単一ユニット平滑筋組織",
+          "多元ユニット平滑筋組織",
+          "中間型平滑筋組織",
+          "特殊型平滑筋組織"
+        ],
+        "answer": 0,
+        "explanation": "単一ユニット平滑筋はギャップ結合で連結され、刺激が伝播しやすく同期して収縮します。内臓壁などで見られます。"
+      },
+      {
+        "question": "ニューロンの主要な構成要素として含まれないものはどれですか？",
+        "options": [
+          "筋小胞体",
+          "細胞体",
+          "樹状突起",
+          "軸索"
+        ],
+        "answer": 0,
+        "explanation": "筋小胞体は筋細胞内に存在しカルシウムイオンを貯蔵する小器官であり、ニューロンの構成要素ではありません。"
+      },
+      {
+        "question": "有髄神経と無髄神経の主な違いは何ですか？また、有髄神経における伝導の特徴は何ですか？",
+        "options": [
+          "無髄神経の方が軸索が太く、伝導速度が速い。",
+          "有髄神経にはランビエの絞輪がなく、連続的な伝導を行う。",
+          "有髄神経はミエリン鞘で覆われており、跳躍伝導により伝導速度が速い。",
+          "両者の伝導速度に大きな違いはない。"
+        ],
+        "answer": 2,
+        "explanation": "有髄神経はミエリン鞘という絶縁体で覆われ、活動電位が髄鞘のない部分（ランビエ絞輪）を飛び飛びに伝わる跳躍伝導により、伝導速度が速くなります。"
+      },
+      {
+        "question": "ニューロンとニューロン、またはニューロンと標的細胞との間の接合部で、情報伝達が行われる部位は何と呼ばれますか？",
+        "options": [
+          "細胞体",
+          "軸索",
+          "シナプス",
+          "ミエリン鞘"
+        ],
+        "answer": 2,
+        "explanation": "シナプスは、神経細胞間や神経細胞と効果器細胞（筋細胞など）の間で情報伝達を行う接合部位です。"
+      },
+      {
+        "question": "ニューロンや筋細胞などの興奮性細胞において、刺激によって一時的に発生する膜電位の急激な変化は何ですか？",
+        "options": [
+          "静止電位",
+          "活動電位",
+          "分極",
+          "再分極"
+        ],
+        "answer": 1,
+        "explanation": "活動電位は、閾値以上の刺激によって引き起こされる、一過性で急激な膜電位の変動（脱分極と再分極）です。"
+      },
+      {
+        "question": "骨格筋の収縮において、カルシウムイオンが結合するタンパク質はどれですか？",
+        "options": [
+          "トロポニン",
+          "トロポミオシン",
+          "アクチン",
+          "ミオシン"
+        ],
+        "answer": 0,
+        "explanation": "カルシウムイオンがトロポニンに結合すると、トロポミオシンの構造が変化し、アクチン上のミオシン結合部位が露出し、筋収縮が開始されます。"
+      },
+      {
+        "question": "心臓を構成し、血液を全身に送り出す役割を担う筋組織はどれですか？",
+        "options": [
+          "骨格筋組織",
+          "心筋組織",
+          "平滑筋組織",
+          "中間筋組織"
+        ],
+        "answer": 1,
+        "explanation": "心筋組織は心臓壁を構成する特殊な筋組織で、自動的かつリズミカルに収縮し、血液循環を維持します。"
+      },
+      {
+        "question": "軸索を覆うミエリン鞘を末梢神経系で形成する細胞は何ですか？",
+        "options": [
+          "オリゴデンドロサイト",
+          "アストロサイト",
+          "シュワン細胞",
+          "ミクログリア"
+        ],
+        "answer": 2,
+        "explanation": "末梢神経系ではシュワン細胞が軸索を取り囲んでミエリン鞘を形成します。中枢神経系ではオリゴデンドロサイトがその役割を担います。"
+      },
+      {
+        "question": "感覚受容器からの情報を中枢神経系に伝える神経は何と呼ばれますか？",
+        "options": [
+          "運動ニューロン",
+          "求心性神経",
+          "遠心性神経",
+          "介在ニューロン"
+        ],
+        "answer": 1,
+        "explanation": "求心性神経（感覚神経）は、体性感覚や内臓感覚などの情報を末梢から中枢神経系（脳・脊髄）へ伝達します。"
+      },
+      {
+        "question": "刺激を受けていない状態のニューロンや筋細胞の細胞膜内外の電位差は何と呼ばれますか？",
+        "options": [
+          "活動電位",
+          "脱分極",
+          "再分極",
+          "静止電位"
+        ],
+        "answer": 3,
+        "explanation": "静止電位（静止膜電位）は、興奮していない状態の細胞膜における内外の電位差で、細胞内が細胞外に対して負に帯電しています。"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let shuffledOptions = [];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+
+      shuffledOptions = shuffleArray([...question.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      document.getElementById('options').innerHTML = optionsHtml;
+
+      // 解説のリセット (display: none は CSS で初期設定)
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.style.opacity = '0';
+      explanationEl.style.display = 'none';
+      // 次へボタンのテキストを更新
+      document.getElementById('next').textContent = (currentQuestion === quizData.length - 1) ? '結果を見る' : '次の問題';
+    }
+
+    function selectOption(index) {
+      const options = document.querySelectorAll('.option');
+      // すでに選択・表示済みなら何もしない
+      if (options[0].classList.contains('disabled')) {
+        return;
+      }
+
+      // すべての選択肢を無効化
+      options.forEach(option => {
+        option.classList.add('disabled');
+        option.style.pointerEvents = 'none'; // クリックイベントを完全に無効化
+      });
+
+      // 選択した選択肢に 'selected' クラスを追加 (一時的)
+      options[index].classList.add('selected');
+
+      const question = quizData[currentQuestion];
+      const selectedAnswerOriginalIndex = question.options.indexOf(shuffledOptions[index]);
+      userAnswers[currentQuestion] = selectedAnswerOriginalIndex; // 元のインデックスで保存
+
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.innerHTML = `
+        <div class="explanation-header">
+          <span class="explanation-icon">💡</span>
+          解説
+        </div>
+        ${question.explanation}
+      `;
+
+      // 正解・不正解に基づいてスタイルを設定
+      const isCorrect = selectedAnswerOriginalIndex === question.answer;
+      if (isCorrect) {
+        // 正解の場合: 解説の背景を薄い水色、ボーダーを青に
+        explanationEl.style.backgroundColor = 'rgba(224, 247, 250, 0.85)';
+        explanationEl.style.borderLeftColor = '#0288d1';
+        explanationEl.querySelector('.explanation-header').style.color = '#0288d1';
+        options[index].classList.remove('selected'); // selected を削除
+        options[index].classList.add('correct'); // correct クラスを追加して緑のグラデーション表示
+      } else {
+        // 不正解の場合: 解説の背景を薄い赤、ボーダーを赤に
+        explanationEl.style.backgroundColor = 'rgba(255, 235, 238, 0.85)';
+        explanationEl.style.borderLeftColor = '#d32f2f'; // 赤系のボーダー
+        explanationEl.querySelector('.explanation-header').style.color = '#d32f2f'; // ヘッダー文字色も赤に
+        options[index].classList.remove('selected'); // selected を削除
+        options[index].classList.add('incorrect'); // incorrect クラスを追加して赤のグラデーション表示
+
+        // 正解の選択肢もハイライトする
+        const correctOptionIndex = shuffledOptions.indexOf(question.options[question.answer]);
+        if (correctOptionIndex !== -1) {
+          options[correctOptionIndex].classList.add('correct'); // 正解の選択肢も緑にする
+        }
+      }
+
+      // 解説を表示 (フェードイン)
+      explanationEl.style.display = 'block';
+      setTimeout(() => {
+        explanationEl.style.opacity = '1';
+      }, 10);
+
+    }
+
+
+    function nextQuestion() {
+      const options = document.querySelectorAll('.option');
+      // 選択肢が選択されていない（disabledクラスが付いていない）場合はアラート
+      if (!options[0].classList.contains('disabled')) {
+        alert('選択肢を選んでください');
+        return;
+      }
+
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      score = userAnswers.reduce((total, answer, index) =>
+        total + (answer === quizData[index].answer ? 1 : 0), 0);
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.style.display = 'none'; // クイズコンテナを非表示
+
+      const percentage = (score / quizData.length) * 100;
+      let resultHtml = `
+        <div class="quiz-container"> <!-- 結果表示もカードスタイルに -->
+          <h2>クイズ結果</h2>
+          <p><strong>正解数:</strong> ${score} / ${quizData.length}</p>
+          <p><strong>正答率:</strong> ${percentage.toFixed(2)}%</p>
+        </div>
+      `;
+
+      quizData.forEach((question, index) => {
+        const userAnswerIndex = userAnswers[index];
+        const isCorrect = userAnswerIndex === question.answer;
+        resultHtml += `
+          <div class="result-card">
+            <h3>問題 ${index + 1}</h3>
+            <p><strong>質問:</strong> ${question.question}</p>
+            <p><strong>あなたの回答:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${question.options[userAnswerIndex] !== undefined ? question.options[userAnswerIndex] : '未回答'}</span></p>
+            ${!isCorrect ? `<p><strong>正解:</strong> <span class="correct">${question.options[question.answer]}</span></p>` : ''}
+            <details>
+              <summary style="cursor: pointer; color: #0277bd; font-weight: bold;">解説を見る</summary> <!-- summary の色を青系に -->
+              <div style="margin-top: 10px; border-left: 3px solid #0288d1; padding-left: 10px;"> <!-- 解説のインデントボーダーも青系に -->
+                ${question.explanation}
+              </div>
+            </details>
+          </div>
+        `;
+      });
+
+      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
+      resultContainer.innerHTML = resultHtml; // resultContainer に結果を表示
+
+      // 全問正解の場合のリンク表示
+      if (percentage === 100) {
+        const attendanceLink = document.getElementById('attendance-link');
+        attendanceLink.style.display = 'block'; // 表示する
+        attendanceLink.innerHTML = `
+          <p>🎉 おめでとうございます！全問正解です！ 🎉</p>
+          <a href="https://forms.gle/ED3phnAb8UNUgntR9" target="_blank">出席確認フォームに回答する</a>
+        `;
+      } else {
+         document.getElementById('attendance-link').style.display = 'none'; // それ以外は非表示
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      shuffledOptions = [];
+      document.getElementById('quiz-container').style.display = 'block'; // クイズコンテナを再表示
+      document.getElementById('result-container').innerHTML = ''; // 結果コンテナをクリア
+      document.getElementById('attendance-link').style.display = 'none'; // 出席リンクを非表示
+      loadQuestion(); // 最初の問題をロード
+    }
+
+    // 初期ロード
+    loadQuestion();
+  </script>
+</body>
+</html>

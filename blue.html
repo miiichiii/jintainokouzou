@@ -4,13 +4,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第2回確認テスト（人体の構造）- ブルーグリーン系</title>
+  <title>第2回確認テスト（人体の構造）- ブルーグリーン系 v2</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       line-height: 1.6;
       color: #333;
-      /* 背景をブルーグリーン系グラデーションに変更 */
+      /* 背景グラデーション */
       background: linear-gradient(135deg, #6dd5ed, #2193b0);
       background-size: cover;
       background-repeat: no-repeat;
@@ -25,8 +25,7 @@
     h1, h2 {
       font-family: 'Noto Sans JP', sans-serif;
       font-weight: 700;
-      /* 見出しの色を濃い青に */
-      color: #0d47a1; /* 濃い青 */
+      color: #0d47a1;
     }
     .quiz-container, .result-card {
       background-color: rgba(255, 255, 255, 0.25);
@@ -40,7 +39,6 @@
     .question {
       font-size: 1.3em;
       margin-bottom: 20px;
-      /* 問題文の色を少し濃い青に */
       color: #0277bd;
     }
     .options {
@@ -55,44 +53,56 @@
       padding: 15px;
       font-size: 1em;
       cursor: pointer;
-      transition: background 0.3s ease 0.1s, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* color transition追加 */
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease, opacity 0.3s ease; /* transition調整 */
       text-align: center;
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      /* オプション文字色を青系に */
       color: #01579b;
     }
-    /* option:hover の背景を明るい青系グラデーションに変更 */
-    .option:hover {
+    /* ホバー時のグラデーション */
+    .option:hover:not(.disabled):not(.correct):not(.incorrect) { /* 無効化/正解/不正解表示時はホバー効果不要 */
       background: linear-gradient(135deg, #4fc3f7, #29b6f6);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      color: #fff; /* ホバー時の文字色を白に */
+      color: #fff;
     }
+    /* 選択直後のスタイル（一瞬表示される）*/
     .option.selected {
-      /* 選択時の基本色を青系に */
-      background-color: #03a9f4; /* 少し明るい青 */
+      background-color: #03a9f4;
       color: #fff;
     }
-    /* option.disabled の背景を hover と同じ明るい青系グラデーションに変更 */
-    .option.disabled {
-      background: linear-gradient(135deg, #4fc3f7, #29b6f6);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      pointer-events: none;
-      color: #e0f7fa; /* 無効時の文字色 (薄い水色) */
-      opacity: 0.8; /* 少し透明度を下げる */
+    /* 無効化された選択肢（まだ正解/不正解が表示されていない状態） */
+    .option.disabled:not(.correct):not(.incorrect) {
+      background-color: rgba(255, 255, 255, 0.6); /* 少し暗くするだけにする */
+      color: #90a4ae; /* グレーアウト */
+      cursor: not-allowed;
+      box-shadow: none; /* 影も消す */
+      opacity: 0.7;
     }
-    /* 正解時のグラデーションを緑系に変更 */
+    /* 無効化され、かつ正解だった選択肢 */
+    .option.disabled.correct {
+      background: linear-gradient(135deg, #56ab2f, #a8e063); /* 正解グラデーション */
+      color: #fff;
+      opacity: 1;
+      cursor: default;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を戻す */
+    }
+    /* 無効化され、かつ不正解だった選択肢 */
+    .option.disabled.incorrect {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b); /* 不正解グラデーション */
+      color: #fff;
+      opacity: 1;
+      cursor: default;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を戻す */
+    }
+
+    /* 正解時のグラデーション（.disabled と組み合わせる） */
     .option.correct {
-      background: linear-gradient(135deg, #56ab2f, #a8e063);
-      color: #fff;
-      opacity: 1; /* 正解は透明度を戻す */
+        /* 個別のスタイルは上記 .disabled.correct で定義 */
     }
-    /* 不正解時のグラデーションを赤系に変更 */
+    /* 不正解時のグラデーション（.disabled と組み合わせる） */
     .option.incorrect {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-      color: #fff;
-      opacity: 1; /* 不正解は透明度を戻す */
+        /* 個別のスタイルは上記 .disabled.incorrect で定義 */
     }
 
     .option::after {
@@ -114,33 +124,28 @@
       margin-top: 20px;
       font-size: 1em;
       color: #333;
-      /* 解説の初期背景を薄い水色の半透明に */
       background-color: rgba(224, 247, 250, 0.85);
       backdrop-filter: blur(10px);
-      /* 解説の初期ボーダーを青に */
       border-left: 5px solid #0288d1;
       border-radius: 12px;
       padding: 15px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      opacity: 0; /* 初期状態は非表示 */
-      display: none; /* 初期状態は非表示 */
+      opacity: 0;
+      display: none;
       transition: opacity 0.3s ease;
     }
-
     .explanation-header {
       display: flex;
       align-items: center;
       margin-bottom: 10px;
       font-weight: bold;
-      /* 解説ヘッダーの色を青に */
       color: #0288d1;
     }
-
     .explanation-icon {
       font-size: 1.5em;
       margin-right: 10px;
     }
-    /* ナビゲーションボタンの背景を青系グラデーションに変更 */
+    /* ボタンのグラデーション */
     .nav-button {
       background: linear-gradient(135deg, #2196F3, #4FC3F7);
       color: #fff;
@@ -154,12 +159,11 @@
       width: 100%;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    /* ナビゲーションボタンのホバー背景を少し濃い青系グラデーションに変更 */
+    /* ボタンホバー時のグラデーション */
     .nav-button:hover {
       background: linear-gradient(135deg, #1976d2, #29b6f6);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
-
     .nav-button:active {
       transform: scale(0.98);
     }
@@ -169,30 +173,26 @@
     .result-card h3 {
       font-size: 1.2em;
       margin-bottom: 10px;
-      /* 結果カードの見出し色を調整 */
       color: #0d47a1;
     }
-    .result-status {
+    .result-status { /* 結果表示の正解/不正解テキスト用 */
       font-weight: bold;
       margin-bottom: 10px;
     }
-    /* 正解ステータスの文字色を緑系に変更 */
-    .correct {
-      color: #56ab2f; /* 緑系 */
+    .correct { /* 結果表示内の正解テキスト色 */
+      color: #56ab2f;
     }
-    /* 不正解ステータスの文字色を赤系に変更 */
-    .incorrect {
-      color: #ff416c; /* 赤系 */
+    .incorrect { /* 結果表示内の不正解テキスト色 */
+      color: #ff416c;
     }
-    /* 出席リンクの背景を青系に変更 */
     #attendance-link {
-      background-color: #2196F3; /* 青系 */
+      background-color: #2196F3;
       color: white;
       padding: 15px;
       border-radius: 12px;
       margin-top: 20px;
       text-align: center;
-      display: none; /* 初期状態は非表示 */
+      display: none;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     #attendance-link a {
@@ -212,7 +212,6 @@
       <div id="quiz-content">
         <div id="question" class="question"></div>
         <div id="options" class="options"></div>
-        <!-- 解説エリアの初期スタイルはCSSで設定 -->
         <div id="explanation" class="explanation"></div>
       </div>
       <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
@@ -221,11 +220,10 @@
     <div id="attendance-link"></div>
   </div>
 
-
   <script>
     const quizData = [
       // (省略: 問題データは変更なし)
-      {
+       {
         "question": "骨格筋の主な機能として誤っているものはどれですか？",
         "options": [
           "意識的な思考",
@@ -395,7 +393,8 @@
     let currentQuestion = 0;
     let score = 0;
     let userAnswers = [];
-    let shuffledOptions = [];
+    let shuffledOptions = []; // シャッフルされた選択肢のテキストを保持
+    let selectedOptionElement = null; // ユーザーが選択した選択肢の要素を保持
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -406,90 +405,106 @@
     }
 
     function loadQuestion() {
+      selectedOptionElement = null; // 選択状態をリセット
       const question = quizData[currentQuestion];
       document.getElementById('question').textContent = question.question;
 
-      shuffledOptions = shuffleArray([...question.options]);
-      const optionsHtml = shuffledOptions.map((option, index) => `
-        <div class="option" onclick="selectOption(${index})">${option}</div>
-      `).join('');
+      // 元の選択肢とそのインデックスをペアで保持
+      const optionsWithIndices = question.options.map((option, index) => ({ text: option, originalIndex: index }));
+      // ペアをシャッフル
+      const shuffledPairs = shuffleArray([...optionsWithIndices]);
+      // シャッフル後のテキストだけを抽出
+      shuffledOptions = shuffledPairs.map(pair => pair.text);
 
-      document.getElementById('options').innerHTML = optionsHtml;
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = ''; // コンテナをクリア
 
-      // 解説のリセット (display: none は CSS で初期設定)
+      // シャッフルされた順番で選択肢要素を作成し、元のインデックスを data 属性として保持
+      shuffledPairs.forEach((pair, shuffledIndex) => {
+        const optionEl = document.createElement('div');
+        optionEl.classList.add('option');
+        optionEl.textContent = pair.text;
+        // クリックされたときに呼び出す関数を設定
+        optionEl.onclick = () => selectOption(optionEl, pair.originalIndex);
+        optionsContainer.appendChild(optionEl);
+      });
+
+
       const explanationEl = document.getElementById('explanation');
       explanationEl.style.opacity = '0';
       explanationEl.style.display = 'none';
-      // 次へボタンのテキストを更新
       document.getElementById('next').textContent = (currentQuestion === quizData.length - 1) ? '結果を見る' : '次の問題';
     }
 
-    function selectOption(index) {
-      const options = document.querySelectorAll('.option');
-      // すでに選択・表示済みなら何もしない
-      if (options[0].classList.contains('disabled')) {
-        return;
-      }
-
-      // すべての選択肢を無効化
-      options.forEach(option => {
-        option.classList.add('disabled');
-        option.style.pointerEvents = 'none'; // クリックイベントを完全に無効化
-      });
-
-      // 選択した選択肢に 'selected' クラスを追加 (一時的)
-      options[index].classList.add('selected');
-
-      const question = quizData[currentQuestion];
-      const selectedAnswerOriginalIndex = question.options.indexOf(shuffledOptions[index]);
-      userAnswers[currentQuestion] = selectedAnswerOriginalIndex; // 元のインデックスで保存
-
-      const explanationEl = document.getElementById('explanation');
-      explanationEl.innerHTML = `
-        <div class="explanation-header">
-          <span class="explanation-icon">💡</span>
-          解説
-        </div>
-        ${question.explanation}
-      `;
-
-      // 正解・不正解に基づいてスタイルを設定
-      const isCorrect = selectedAnswerOriginalIndex === question.answer;
-      if (isCorrect) {
-        // 正解の場合: 解説の背景を薄い水色、ボーダーを青に
-        explanationEl.style.backgroundColor = 'rgba(224, 247, 250, 0.85)';
-        explanationEl.style.borderLeftColor = '#0288d1';
-        explanationEl.querySelector('.explanation-header').style.color = '#0288d1';
-        options[index].classList.remove('selected'); // selected を削除
-        options[index].classList.add('correct'); // correct クラスを追加して緑のグラデーション表示
-      } else {
-        // 不正解の場合: 解説の背景を薄い赤、ボーダーを赤に
-        explanationEl.style.backgroundColor = 'rgba(255, 235, 238, 0.85)';
-        explanationEl.style.borderLeftColor = '#d32f2f'; // 赤系のボーダー
-        explanationEl.querySelector('.explanation-header').style.color = '#d32f2f'; // ヘッダー文字色も赤に
-        options[index].classList.remove('selected'); // selected を削除
-        options[index].classList.add('incorrect'); // incorrect クラスを追加して赤のグラデーション表示
-
-        // 正解の選択肢もハイライトする
-        const correctOptionIndex = shuffledOptions.indexOf(question.options[question.answer]);
-        if (correctOptionIndex !== -1) {
-          options[correctOptionIndex].classList.add('correct'); // 正解の選択肢も緑にする
+    // selectOption関数の引数を変更: 選択された要素と元のインデックスを受け取る
+    function selectOption(selectedElement, originalIndex) {
+        // すでにいずれかの選択肢が選択されて解説が表示されている場合は何もしない
+        if (document.querySelector('.option.disabled')) {
+             return;
         }
-      }
 
-      // 解説を表示 (フェードイン)
-      explanationEl.style.display = 'block';
-      setTimeout(() => {
-        explanationEl.style.opacity = '1';
-      }, 10);
+        selectedOptionElement = selectedElement; // 選択された要素を保持
+        userAnswers[currentQuestion] = originalIndex; // 回答を元のインデックスで記録
 
+        const question = quizData[currentQuestion];
+        const isCorrect = originalIndex === question.answer;
+
+        // すべての選択肢を取得
+        const options = document.querySelectorAll('.option');
+
+        // すべての選択肢を無効化
+        options.forEach(opt => {
+            opt.classList.add('disabled'); // disabledクラスを追加
+            opt.onclick = null; // クリックイベントを削除
+        });
+
+        // 選択された要素に correct または incorrect クラスを追加
+        selectedElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        // 不正解の場合、正解の選択肢にも correct クラスを追加
+        if (!isCorrect) {
+            const correctOriginalIndex = question.answer;
+            // 正解の元のインデックスを持つ要素を探す
+            options.forEach(opt => {
+                // この方法だと元のインデックスを特定できない。loadQuestionでdata属性を付与する方式に変更が必要
+                // ⇒ loadQuestion側で対応済みなので、textContentで比較する
+                if(opt.textContent === question.options[correctOriginalIndex]) {
+                    opt.classList.add('correct');
+                }
+            });
+        }
+
+
+        // 解説を表示
+        const explanationEl = document.getElementById('explanation');
+        explanationEl.innerHTML = `
+            <div class="explanation-header">
+            <span class="explanation-icon">💡</span>
+            解説
+            </div>
+            ${question.explanation}
+        `;
+        // 解説のスタイルを正誤に応じて変更
+        if (isCorrect) {
+            explanationEl.style.backgroundColor = 'rgba(224, 247, 250, 0.85)';
+            explanationEl.style.borderLeftColor = '#0288d1';
+            explanationEl.querySelector('.explanation-header').style.color = '#0288d1';
+        } else {
+            explanationEl.style.backgroundColor = 'rgba(255, 235, 238, 0.85)';
+            explanationEl.style.borderLeftColor = '#d32f2f';
+            explanationEl.querySelector('.explanation-header').style.color = '#d32f2f';
+        }
+
+        explanationEl.style.display = 'block';
+        setTimeout(() => {
+            explanationEl.style.opacity = '1';
+        }, 10);
     }
 
 
     function nextQuestion() {
-      const options = document.querySelectorAll('.option');
-      // 選択肢が選択されていない（disabledクラスが付いていない）場合はアラート
-      if (!options[0].classList.contains('disabled')) {
+      // 解説が表示されているか（= いずれかの選択肢がクリックされた後か）で判断
+      if (document.getElementById('explanation').style.display !== 'block') {
         alert('選択肢を選んでください');
         return;
       }
@@ -508,11 +523,11 @@
 
       const resultContainer = document.getElementById('result-container');
       const quizContainer = document.getElementById('quiz-container');
-      quizContainer.style.display = 'none'; // クイズコンテナを非表示
+      quizContainer.style.display = 'none';
 
       const percentage = (score / quizData.length) * 100;
       let resultHtml = `
-        <div class="quiz-container"> <!-- 結果表示もカードスタイルに -->
+        <div class="quiz-container">
           <h2>クイズ結果</h2>
           <p><strong>正解数:</strong> ${score} / ${quizData.length}</p>
           <p><strong>正答率:</strong> ${percentage.toFixed(2)}%</p>
@@ -522,15 +537,18 @@
       quizData.forEach((question, index) => {
         const userAnswerIndex = userAnswers[index];
         const isCorrect = userAnswerIndex === question.answer;
+        const userAnswerText = userAnswerIndex !== undefined ? question.options[userAnswerIndex] : '未回答';
+        const correctAnswerText = question.options[question.answer];
+
         resultHtml += `
           <div class="result-card">
             <h3>問題 ${index + 1}</h3>
             <p><strong>質問:</strong> ${question.question}</p>
-            <p><strong>あなたの回答:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${question.options[userAnswerIndex] !== undefined ? question.options[userAnswerIndex] : '未回答'}</span></p>
-            ${!isCorrect ? `<p><strong>正解:</strong> <span class="correct">${question.options[question.answer]}</span></p>` : ''}
+            <p><strong>あなたの回答:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${userAnswerText}</span></p>
+            ${!isCorrect ? `<p><strong>正解:</strong> <span class="correct">${correctAnswerText}</span></p>` : ''}
             <details>
-              <summary style="cursor: pointer; color: #0277bd; font-weight: bold;">解説を見る</summary> <!-- summary の色を青系に -->
-              <div style="margin-top: 10px; border-left: 3px solid #0288d1; padding-left: 10px;"> <!-- 解説のインデントボーダーも青系に -->
+              <summary style="cursor: pointer; color: #0277bd; font-weight: bold;">解説を見る</summary>
+              <div style="margin-top: 10px; border-left: 3px solid #0288d1; padding-left: 10px;">
                 ${question.explanation}
               </div>
             </details>
@@ -539,18 +557,17 @@
       });
 
       resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
-      resultContainer.innerHTML = resultHtml; // resultContainer に結果を表示
+      resultContainer.innerHTML = resultHtml;
 
-      // 全問正解の場合のリンク表示
       if (percentage === 100) {
         const attendanceLink = document.getElementById('attendance-link');
-        attendanceLink.style.display = 'block'; // 表示する
+        attendanceLink.style.display = 'block';
         attendanceLink.innerHTML = `
           <p>🎉 おめでとうございます！全問正解です！ 🎉</p>
           <a href="https://forms.gle/ED3phnAb8UNUgntR9" target="_blank">出席確認フォームに回答する</a>
         `;
       } else {
-         document.getElementById('attendance-link').style.display = 'none'; // それ以外は非表示
+         document.getElementById('attendance-link').style.display = 'none';
       }
     }
 
@@ -559,10 +576,11 @@
       score = 0;
       userAnswers = [];
       shuffledOptions = [];
-      document.getElementById('quiz-container').style.display = 'block'; // クイズコンテナを再表示
-      document.getElementById('result-container').innerHTML = ''; // 結果コンテナをクリア
-      document.getElementById('attendance-link').style.display = 'none'; // 出席リンクを非表示
-      loadQuestion(); // 最初の問題をロード
+      selectedOptionElement = null; // 選択状態リセット
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = '';
+      document.getElementById('attendance-link').style.display = 'none';
+      loadQuestion();
     }
 
     // 初期ロード

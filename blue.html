@@ -4,19 +4,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第2回確認テスト（人体の構造）- ブルーグリーン系 v2</title>
+  <title>第１回確認テスト（人体の構造）- GSAPアニメーション付き</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       line-height: 1.6;
       color: #333;
-      /* 背景グラデーション */
-      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
       padding: 20px;
       margin: 0;
+      overflow-x: hidden; /* GSAPアニメーションによる横スクロール防止 */
     }
     .container {
       max-width: 800px;
@@ -25,21 +25,20 @@
     h1, h2 {
       font-family: 'Noto Sans JP', sans-serif;
       font-weight: 700;
-      color: #0d47a1;
     }
     .quiz-container, .result-card {
-      background-color: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(12px);
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
     .question {
       font-size: 1.3em;
       margin-bottom: 20px;
-      color: #0277bd;
+      color: #1d1d1f;
     }
     .options {
       display: grid;
@@ -47,64 +46,42 @@
       gap: 15px;
     }
     .option {
-      background-color: rgba(255, 255, 255, 0.75);
+      background-color: rgba(255, 255, 255, 0.7);
       border: none;
       border-radius: 16px;
       padding: 15px;
       font-size: 1em;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease, opacity 0.3s ease; /* transition調整 */
+      transition: background 0.3s ease 0.1s, transform 0.3s ease;
       text-align: center;
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      color: #01579b;
     }
-    /* ホバー時のグラデーション */
-    .option:hover:not(.disabled):not(.correct):not(.incorrect) { /* 無効化/正解/不正解表示時はホバー効果不要 */
-      background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    .option:hover {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      color: #fff;
     }
-    /* 選択直後のスタイル（一瞬表示される）*/
     .option.selected {
-      background-color: #03a9f4;
-      color: #fff;
+      /* 選択時のスタイルは維持しつつ、正解/不正解で上書きされる */
     }
-    /* 無効化された選択肢（まだ正解/不正解が表示されていない状態） */
-    .option.disabled:not(.correct):not(.incorrect) {
-      background-color: rgba(255, 255, 255, 0.6); /* 少し暗くするだけにする */
-      color: #90a4ae; /* グレーアウト */
-      cursor: not-allowed;
-      box-shadow: none; /* 影も消す */
-      opacity: 0.7;
+    .option.disabled {
+      /* pointer-events: none; はGSAPアニメーションと競合する場合があるので注意 */
+      /* クリック制御はJSで行う */
+      opacity: 0.7; /* 無効化を視覚的に示す */
     }
-    /* 無効化され、かつ正解だった選択肢 */
-    .option.disabled.correct {
-      background: linear-gradient(135deg, #56ab2f, #a8e063); /* 正解グラデーション */
-      color: #fff;
-      opacity: 1;
-      cursor: default;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を戻す */
-    }
-    /* 無効化され、かつ不正解だった選択肢 */
-    .option.disabled.incorrect {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b); /* 不正解グラデーション */
-      color: #fff;
-      opacity: 1;
-      cursor: default;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を戻す */
-    }
-
-    /* 正解時のグラデーション（.disabled と組み合わせる） */
+    /* 正解時のグラデーション */
     .option.correct {
-        /* 個別のスタイルは上記 .disabled.correct で定義 */
+      background: linear-gradient(135deg, #34c759, #a8e6cf);
+      color: #fff;
+      transform: scale(1.02); /* 正解時に少し拡大 */
     }
-    /* 不正解時のグラデーション（.disabled と組み合わせる） */
+    /* 不正解時のグラデーション */
     .option.incorrect {
-        /* 個別のスタイルは上記 .disabled.incorrect で定義 */
+      background: linear-gradient(135deg, #ff3b30, #ff9a8b);
+      color: #fff;
+      /* 揺れるアニメーションはGSAPで行う */
     }
-
     .option::after {
       content: '';
       position: absolute;
@@ -119,49 +96,46 @@
     .option:active::after {
       transform: scale(0.98);
     }
-
     .explanation {
       margin-top: 20px;
       font-size: 1em;
       color: #333;
-      background-color: rgba(224, 247, 250, 0.85);
+      background-color: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
-      border-left: 5px solid #0288d1;
+      border-left: 5px solid #4caf50;
       border-radius: 12px;
       padding: 15px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      opacity: 0;
+      /* GSAPで制御するため初期非表示 */
       display: none;
-      transition: opacity 0.3s ease;
+      opacity: 0;
     }
     .explanation-header {
       display: flex;
       align-items: center;
       margin-bottom: 10px;
       font-weight: bold;
-      color: #0288d1;
+      color: #4caf50;
     }
     .explanation-icon {
       font-size: 1.5em;
       margin-right: 10px;
     }
-    /* ボタンのグラデーション */
     .nav-button {
-      background: linear-gradient(135deg, #2196F3, #4FC3F7);
+      background: linear-gradient(135deg, #007aff, #5ac8fa);
       color: #fff;
       border: none;
       border-radius: 12px;
       padding: 12px 24px;
       font-size: 1em;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* box-shadow transition追加 */
       margin-top: 20px;
       width: 100%;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    /* ボタンホバー時のグラデーション */
     .nav-button:hover {
-      background: linear-gradient(135deg, #1976d2, #29b6f6);
+      background: linear-gradient(135deg, #005bb5, #4aa0d3);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
     .nav-button:active {
@@ -169,31 +143,33 @@
     }
     .result-card {
       margin-bottom: 20px;
+      /* GSAPで制御するため初期透明化 */
+      opacity: 0;
     }
     .result-card h3 {
       font-size: 1.2em;
       margin-bottom: 10px;
-      color: #0d47a1;
     }
-    .result-status { /* 結果表示の正解/不正解テキスト用 */
+    .result-status {
       font-weight: bold;
       margin-bottom: 10px;
     }
-    .correct { /* 結果表示内の正解テキスト色 */
-      color: #56ab2f;
+    .correct {
+      color: #34c759;
     }
-    .incorrect { /* 結果表示内の不正解テキスト色 */
-      color: #ff416c;
+    .incorrect {
+      color: #ff3b30;
     }
     #attendance-link {
-      background-color: #2196F3;
+      background-color: #34c759;
       color: white;
       padding: 15px;
       border-radius: 12px;
       margin-top: 20px;
       text-align: center;
+      /* GSAPで制御するため初期非表示 */
       display: none;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      opacity: 0;
     }
     #attendance-link a {
       color: white;
@@ -204,10 +180,14 @@
       text-decoration: underline;
     }
   </style>
+
+  <!-- GSAPライブラリの読み込み (最新版を推奨) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
 </head>
 <body>
   <div class="container">
-    <h1>第2回確認テスト（人体の構造）</h1>
+    <h1 style="text-align: center;">第１回確認テスト（人体の構造）</h1>
     <div id="quiz-container" class="quiz-container">
       <div id="quiz-content">
         <div id="question" class="question"></div>
@@ -220,181 +200,72 @@
     <div id="attendance-link"></div>
   </div>
 
+
   <script>
     const quizData = [
-      // (省略: 問題データは変更なし)
-       {
-        "question": "骨格筋の主な機能として誤っているものはどれですか？",
+      // (既存のquizDataは変更なし)
+      {
+        "question": "解剖学で基準となる、気をつけの姿勢で立ち、手のひらを前に向けた体位を何と呼びますか？",
         "options": [
-          "意識的な思考",
-          "運動を起こす",
-          "姿勢の維持",
-          "体温の産生"
+          "生理学的立位",
+          "解剖学的正位",
+          "機能的肢位",
+          "日常的立位"
         ],
-        "answer": 0,
-        "explanation": "意識的な思考は脳の機能であり、骨格筋の主な機能ではありません。"
+        "answer": 1,
+        "explanation": "人体を記載・説明する際の基準となる姿勢は「解剖学的正位」です。"
       },
       {
-        "question": "筋組織は３種類に分類されますが、そのうち随意的に制御できるのはどれですか？",
+        "question": "人体を左右に分ける面（身体の正中を通る面を含む）を何と呼びますか？",
         "options": [
-          "心筋組織",
-          "平滑筋組織",
-          "骨格筋組織",
-          "全ての筋組織"
-        ],
-        "answer": 2,
-        "explanation": "骨格筋は意識的に動かすことができる随意筋です。心筋と平滑筋は不随意筋です。"
-      },
-      {
-        "question": "骨格筋線維の収縮に関わる主要なタンパク質フィラメントの組み合わせとして正しいものはどれですか？",
-        "options": [
-          "アクチンとトロポニン",
-          "ミオシンとトロポミオシン",
-          "アクチンとミオシン",
-          "トロポニンとトロポミオシン"
+          "水平面",
+          "前額面（冠状面）",
+          "矢状面",
+          "斜断面"
         ],
         "answer": 2,
-        "explanation": "アクチンフィラメントとミオシンフィラメントが相互作用することで筋収縮が起こります。"
+        "explanation": "人体を左右に分ける面は「矢状面」です。特に正中を通る面は「正中面」とも呼ばれます。"
       },
       {
-        "question": "骨格筋の収縮は、運動ニューロンから放出される特定の神経伝達物質によって開始されます。その神経伝達物質は何ですか？",
+        "question": "人体を構成するレベルで、同じような形態と機能を持つ細胞が集まってできるものを何と呼びますか？",
         "options": [
-          "ノルアドレナリン",
-          "ドーパミン",
-          "セロトニン",
-          "アセチルコリン"
+          "器官",
+          "個体",
+          "細胞",
+          "組織"
         ],
         "answer": 3,
-        "explanation": "運動ニューロンの終末から放出されるアセチルコリンが筋線維の受容体に結合し、筋収縮を引き起こします。"
+        "explanation": "細胞が集まって「組織」を形成します。組織が集まって器官、器官が集まって器官系、そして個体が構成されます。"
       },
       {
-        "question": "心筋組織の大きな特徴である「不随意性」とは、その収縮と弛緩がどういう意味ですか？",
+        "question": "体の表面や、消化管・気管などの管の内側をおおっている、細胞が密に集まった組織は何ですか？",
         "options": [
-          "非常に速い速度で起こる",
-          "非常に強い力で起こる",
-          "個人の意識的な制御下にはない",
-          "疲労を起こしにくい"
+          "筋組織",
+          "結合組織",
+          "上皮組織",
+          "神経組織"
         ],
         "answer": 2,
-        "explanation": "心筋の収縮は自律神経系によって調節され、意識的にコントロールすることはできません。"
+        "explanation": "体の表面や体内の管の内面を覆い、保護・吸収・分泌などの役割を担うのは「上皮組織」です。細胞が密に配列しているのが特徴です。"
       },
       {
-        "question": "平滑筋組織は、その分布と機能によって単一ユニット平滑筋組織と多元ユニット平滑筋組織に分類されます。内臓壁などに存在し、刺激が全体に広がり同期して収縮するタイプはどちらですか？",
+        "question": "上皮組織において、体表や管腔に面している側の表面を何と呼びますか？",
         "options": [
-          "単一ユニット平滑筋組織",
-          "多元ユニット平滑筋組織",
-          "中間型平滑筋組織",
-          "特殊型平滑筋組織"
-        ],
-        "answer": 0,
-        "explanation": "単一ユニット平滑筋はギャップ結合で連結され、刺激が伝播しやすく同期して収縮します。内臓壁などで見られます。"
-      },
-      {
-        "question": "ニューロンの主要な構成要素として含まれないものはどれですか？",
-        "options": [
-          "筋小胞体",
-          "細胞体",
-          "樹状突起",
-          "軸索"
-        ],
-        "answer": 0,
-        "explanation": "筋小胞体は筋細胞内に存在しカルシウムイオンを貯蔵する小器官であり、ニューロンの構成要素ではありません。"
-      },
-      {
-        "question": "有髄神経と無髄神経の主な違いは何ですか？また、有髄神経における伝導の特徴は何ですか？",
-        "options": [
-          "無髄神経の方が軸索が太く、伝導速度が速い。",
-          "有髄神経にはランビエの絞輪がなく、連続的な伝導を行う。",
-          "有髄神経はミエリン鞘で覆われており、跳躍伝導により伝導速度が速い。",
-          "両者の伝導速度に大きな違いはない。"
+          "基底面",
+          "側面",
+          "自由面",
+          "接着面"
         ],
         "answer": 2,
-        "explanation": "有髄神経はミエリン鞘という絶縁体で覆われ、活動電位が髄鞘のない部分（ランビエ絞輪）を飛び飛びに伝わる跳躍伝導により、伝導速度が速くなります。"
-      },
-      {
-        "question": "ニューロンとニューロン、またはニューロンと標的細胞との間の接合部で、情報伝達が行われる部位は何と呼ばれますか？",
-        "options": [
-          "細胞体",
-          "軸索",
-          "シナプス",
-          "ミエリン鞘"
-        ],
-        "answer": 2,
-        "explanation": "シナプスは、神経細胞間や神経細胞と効果器細胞（筋細胞など）の間で情報伝達を行う接合部位です。"
-      },
-      {
-        "question": "ニューロンや筋細胞などの興奮性細胞において、刺激によって一時的に発生する膜電位の急激な変化は何ですか？",
-        "options": [
-          "静止電位",
-          "活動電位",
-          "分極",
-          "再分極"
-        ],
-        "answer": 1,
-        "explanation": "活動電位は、閾値以上の刺激によって引き起こされる、一過性で急激な膜電位の変動（脱分極と再分極）です。"
-      },
-      {
-        "question": "骨格筋の収縮において、カルシウムイオンが結合するタンパク質はどれですか？",
-        "options": [
-          "トロポニン",
-          "トロポミオシン",
-          "アクチン",
-          "ミオシン"
-        ],
-        "answer": 0,
-        "explanation": "カルシウムイオンがトロポニンに結合すると、トロポミオシンの構造が変化し、アクチン上のミオシン結合部位が露出し、筋収縮が開始されます。"
-      },
-      {
-        "question": "心臓を構成し、血液を全身に送り出す役割を担う筋組織はどれですか？",
-        "options": [
-          "骨格筋組織",
-          "心筋組織",
-          "平滑筋組織",
-          "中間筋組織"
-        ],
-        "answer": 1,
-        "explanation": "心筋組織は心臓壁を構成する特殊な筋組織で、自動的かつリズミカルに収縮し、血液循環を維持します。"
-      },
-      {
-        "question": "軸索を覆うミエリン鞘を末梢神経系で形成する細胞は何ですか？",
-        "options": [
-          "オリゴデンドロサイト",
-          "アストロサイト",
-          "シュワン細胞",
-          "ミクログリア"
-        ],
-        "answer": 2,
-        "explanation": "末梢神経系ではシュワン細胞が軸索を取り囲んでミエリン鞘を形成します。中枢神経系ではオリゴデンドロサイトがその役割を担います。"
-      },
-      {
-        "question": "感覚受容器からの情報を中枢神経系に伝える神経は何と呼ばれますか？",
-        "options": [
-          "運動ニューロン",
-          "求心性神経",
-          "遠心性神経",
-          "介在ニューロン"
-        ],
-        "answer": 1,
-        "explanation": "求心性神経（感覚神経）は、体性感覚や内臓感覚などの情報を末梢から中枢神経系（脳・脊髄）へ伝達します。"
-      },
-      {
-        "question": "刺激を受けていない状態のニューロンや筋細胞の細胞膜内外の電位差は何と呼ばれますか？",
-        "options": [
-          "活動電位",
-          "脱分極",
-          "再分極",
-          "静止電位"
-        ],
-        "answer": 3,
-        "explanation": "静止電位（静止膜電位）は、興奮していない状態の細胞膜における内外の電位差で、細胞内が細胞外に対して負に帯電しています。"
+        "explanation": "上皮細胞の、体外や体内の空間（管腔）に面している側を「自由面」と呼びます。"
       }
     ];
 
     let currentQuestion = 0;
     let score = 0;
     let userAnswers = [];
-    let shuffledOptions = []; // シャッフルされた選択肢のテキストを保持
-    let selectedOptionElement = null; // ユーザーが選択した選択肢の要素を保持
+    let shuffledOptions = [];
+    let isAnimating = false; // アニメーション中の連続クリック防止用フラグ
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -404,183 +275,288 @@
       return array;
     }
 
+    // GSAP: 問題と選択肢の表示アニメーション
     function loadQuestion() {
-      selectedOptionElement = null; // 選択状態をリセット
+      const questionData = quizData[currentQuestion];
+      const questionEl = document.getElementById('question');
+      const optionsEl = document.getElementById('options');
+      const explanationEl = document.getElementById('explanation');
+      const nextButton = document.getElementById('next');
+
+      // ボタンを有効化
+      nextButton.disabled = false;
+      gsap.to(nextButton, { opacity: 1, duration: 0.2 });
+
+
+      // アニメーションのために初期状態を設定
+      gsap.set([questionEl, optionsEl], { opacity: 0 });
+      gsap.set(explanationEl, { display: 'none', opacity: 0 }); // 解説もリセット
+
+      questionEl.textContent = questionData.question;
+
+      shuffledOptions = shuffleArray([...questionData.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      optionsEl.innerHTML = optionsHtml;
+
+      // アニメーションタイムラインを作成
+      const tl = gsap.timeline();
+      tl.to(questionEl, { duration: 0.5, opacity: 1, y: 0, delay: 0.2 })
+        .fromTo(".option",
+          { opacity: 0, y: 20 }, // 開始状態
+          {
+            duration: 0.4,
+            opacity: 1,
+            y: 0, // 終了状態
+            stagger: 0.1, // 0.1秒ずつ遅延
+            ease: "power2.out" // イージング追加
+          }, "-=0.2"); // 前のアニメーションと少し重ねる
+    }
+
+    // GSAP: 選択肢選択時のアニメーションと解説表示
+    function selectOption(index) {
+      if (isAnimating) return; // アニメーション中は処理しない
+
+      const options = document.querySelectorAll('.option');
+      // 選択肢がすでに無効化されているかチェック (disabledクラスは使わない方向で)
+      if (options[index].style.pointerEvents === 'none') {
+          return;
+      }
+
+
+      isAnimating = true; // アニメーション開始
+
+      // すべての選択肢をクリック不可に
+      options.forEach(option => {
+        // option.classList.add('disabled'); // CSSクラスではなくGSAPで制御
+        gsap.to(option, { opacity: 0.7, pointerEvents: 'none', duration: 0.3 });
+      });
+
+      // 選択した選択肢をハイライト（クリック不可にしつつ、見た目は変える）
+      gsap.to(options[index], { opacity: 1, pointerEvents: 'none', duration: 0.3 });
+      options[index].classList.add('selected'); // selectedクラスは状態管理用に残す
+
       const question = quizData[currentQuestion];
-      document.getElementById('question').textContent = question.question;
+      const selectedAnswerText = shuffledOptions[index];
+      const selectedAnswerIndex = question.options.indexOf(selectedAnswerText);
+      userAnswers[currentQuestion] = selectedAnswerIndex;
 
-      // 元の選択肢とそのインデックスをペアで保持
-      const optionsWithIndices = question.options.map((option, index) => ({ text: option, originalIndex: index }));
-      // ペアをシャッフル
-      const shuffledPairs = shuffleArray([...optionsWithIndices]);
-      // シャッフル後のテキストだけを抽出
-      shuffledOptions = shuffledPairs.map(pair => pair.text);
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.innerHTML = `
+        <div class="explanation-header">
+          <span class="explanation-icon">💡</span>
+          解説
+        </div>
+        ${question.explanation}
+      `;
 
-      const optionsContainer = document.getElementById('options');
-      optionsContainer.innerHTML = ''; // コンテナをクリア
+      // 正解・不正解の判定とアニメーション
+      const isCorrect = selectedAnswerIndex === question.answer;
+      const selectedOptionEl = options[index];
 
-      // シャッフルされた順番で選択肢要素を作成し、元のインデックスを data 属性として保持
-      shuffledPairs.forEach((pair, shuffledIndex) => {
-        const optionEl = document.createElement('div');
-        optionEl.classList.add('option');
-        optionEl.textContent = pair.text;
-        // クリックされたときに呼び出す関数を設定
-        optionEl.onclick = () => selectOption(optionEl, pair.originalIndex);
-        optionsContainer.appendChild(optionEl);
+      // 選択肢へのクラス付与を少し遅らせる
+      gsap.delayedCall(0.1, () => {
+          if (isCorrect) {
+              selectedOptionEl.classList.add('correct');
+              explanationEl.style.backgroundColor = '#e8f5e9';
+              explanationEl.style.borderLeftColor = '#4caf50';
+              // 正解アニメーション (少しバウンド)
+              gsap.fromTo(selectedOptionEl, { scale: 1 }, { scale: 1.05, duration: 0.3, ease: "elastic.out(1, 0.5)", yoyo: true, repeat: 1 });
+          } else {
+              selectedOptionEl.classList.add('incorrect');
+              explanationEl.style.backgroundColor = '#ffebee';
+              explanationEl.style.borderLeftColor = '#f44336';
+              // 不正解アニメーション (左右に揺れる)
+              gsap.fromTo(selectedOptionEl, { x: 0 }, { duration: 0.1, x: 10, ease: "power1.inOut", repeat: 5, yoyo: true });
+
+              // 正解の選択肢もハイライト (任意)
+              const correctOptionIndex = shuffledOptions.findIndex(opt => opt === question.options[question.answer]);
+              if (correctOptionIndex !== -1) {
+                  gsap.to(options[correctOptionIndex], { opacity: 1, duration: 0.3 }); // 不透明に戻す
+                  options[correctOptionIndex].classList.add('correct'); // 正解スタイル適用
+              }
+          }
       });
 
 
-      const explanationEl = document.getElementById('explanation');
-      explanationEl.style.opacity = '0';
-      explanationEl.style.display = 'none';
-      document.getElementById('next').textContent = (currentQuestion === quizData.length - 1) ? '結果を見る' : '次の問題';
+      // 解説の表示アニメーション
+      gsap.set(explanationEl, { display: 'block' }); // まず表示
+      gsap.fromTo(explanationEl,
+        { opacity: 0, y: 10 }, // 開始状態
+        {
+          duration: 0.5,
+          opacity: 1,
+          y: 0, // 終了状態
+          delay: 0.5, // 選択肢アニメーション後に開始
+          onComplete: () => { isAnimating = false; } // 解説表示完了でアニメーション終了
+        }
+      );
     }
 
-    // selectOption関数の引数を変更: 選択された要素と元のインデックスを受け取る
-    function selectOption(selectedElement, originalIndex) {
-        // すでにいずれかの選択肢が選択されて解説が表示されている場合は何もしない
-        if (document.querySelector('.option.disabled')) {
-             return;
-        }
-
-        selectedOptionElement = selectedElement; // 選択された要素を保持
-        userAnswers[currentQuestion] = originalIndex; // 回答を元のインデックスで記録
-
-        const question = quizData[currentQuestion];
-        const isCorrect = originalIndex === question.answer;
-
-        // すべての選択肢を取得
-        const options = document.querySelectorAll('.option');
-
-        // すべての選択肢を無効化
-        options.forEach(opt => {
-            opt.classList.add('disabled'); // disabledクラスを追加
-            opt.onclick = null; // クリックイベントを削除
-        });
-
-        // 選択された要素に correct または incorrect クラスを追加
-        selectedElement.classList.add(isCorrect ? 'correct' : 'incorrect');
-
-        // 不正解の場合、正解の選択肢にも correct クラスを追加
-        if (!isCorrect) {
-            const correctOriginalIndex = question.answer;
-            // 正解の元のインデックスを持つ要素を探す
-            options.forEach(opt => {
-                // この方法だと元のインデックスを特定できない。loadQuestionでdata属性を付与する方式に変更が必要
-                // ⇒ loadQuestion側で対応済みなので、textContentで比較する
-                if(opt.textContent === question.options[correctOriginalIndex]) {
-                    opt.classList.add('correct');
-                }
-            });
-        }
-
-
-        // 解説を表示
-        const explanationEl = document.getElementById('explanation');
-        explanationEl.innerHTML = `
-            <div class="explanation-header">
-            <span class="explanation-icon">💡</span>
-            解説
-            </div>
-            ${question.explanation}
-        `;
-        // 解説のスタイルを正誤に応じて変更
-        if (isCorrect) {
-            explanationEl.style.backgroundColor = 'rgba(224, 247, 250, 0.85)';
-            explanationEl.style.borderLeftColor = '#0288d1';
-            explanationEl.querySelector('.explanation-header').style.color = '#0288d1';
-        } else {
-            explanationEl.style.backgroundColor = 'rgba(255, 235, 238, 0.85)';
-            explanationEl.style.borderLeftColor = '#d32f2f';
-            explanationEl.querySelector('.explanation-header').style.color = '#d32f2f';
-        }
-
-        explanationEl.style.display = 'block';
-        setTimeout(() => {
-            explanationEl.style.opacity = '1';
-        }, 10);
-    }
-
-
+    // 次の問題へ（アニメーション考慮）
     function nextQuestion() {
-      // 解説が表示されているか（= いずれかの選択肢がクリックされた後か）で判断
-      if (document.getElementById('explanation').style.display !== 'block') {
-        alert('選択肢を選んでください');
-        return;
-      }
+      if (isAnimating) return; // アニメーション中は処理しない
 
+       // 選択肢が選択されていない場合のアラート
+      const selectedOption = document.querySelector('.option.selected');
+       if (!selectedOption && currentQuestion < quizData.length) { // 結果表示前のみチェック
+           alert('選択肢を選んでください');
+           return;
+       }
+
+       // 次の問題がある場合
       if (currentQuestion < quizData.length - 1) {
-        currentQuestion++;
-        loadQuestion();
+        isAnimating = true; // アニメーション開始
+        const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } }); // 完了時にフラグ解除
+        // 現在の問題をフェードアウト
+        tl.to("#quiz-content > *", { // 問題、選択肢、解説を対象
+          duration: 0.3,
+          opacity: 0,
+          y: -20,
+          stagger: 0.1,
+          ease: "power1.in"
+        })
+        .call(() => { // フェードアウト完了後
+          currentQuestion++;
+          loadQuestion(); // 次の問題をロード（内部でアニメーション開始）
+        });
       } else {
+        // 結果表示へ
         showResult();
       }
     }
 
+    // GSAP: 結果表示アニメーション
     function showResult() {
+       if (isAnimating) return;
+       isAnimating = true; // 結果表示アニメーション開始
+
       score = userAnswers.reduce((total, answer, index) =>
         total + (answer === quizData[index].answer ? 1 : 0), 0);
 
       const resultContainer = document.getElementById('result-container');
       const quizContainer = document.getElementById('quiz-container');
-      quizContainer.style.display = 'none';
+      const attendanceLink = document.getElementById('attendance-link'); // 先に取得
 
-      const percentage = (score / quizData.length) * 100;
-      let resultHtml = `
-        <div class="quiz-container">
-          <h2>クイズ結果</h2>
-          <p><strong>正解数:</strong> ${score} / ${quizData.length}</p>
-          <p><strong>正答率:</strong> ${percentage.toFixed(2)}%</p>
-        </div>
-      `;
+      // クイズコンテナをフェードアウト & 結果コンテナ準備
+      gsap.to(quizContainer, {
+        duration: 0.5,
+        opacity: 0,
+        y: -30,
+        ease: "power1.in",
+        onComplete: () => {
+          quizContainer.style.display = 'none'; // 非表示に
 
-      quizData.forEach((question, index) => {
-        const userAnswerIndex = userAnswers[index];
-        const isCorrect = userAnswerIndex === question.answer;
-        const userAnswerText = userAnswerIndex !== undefined ? question.options[userAnswerIndex] : '未回答';
-        const correctAnswerText = question.options[question.answer];
+          const percentage = (score / quizData.length) * 100;
+          let resultHtml = `
+            <h2 style="opacity: 0;">クイズ結果</h2>
+            <p style="opacity: 0;">正解数: ${score} / ${quizData.length}</p>
+            <p style="opacity: 0;">正答率: ${percentage.toFixed(2)}%</p>
+          `;
 
-        resultHtml += `
-          <div class="result-card">
-            <h3>問題 ${index + 1}</h3>
-            <p><strong>質問:</strong> ${question.question}</p>
-            <p><strong>あなたの回答:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${userAnswerText}</span></p>
-            ${!isCorrect ? `<p><strong>正解:</strong> <span class="correct">${correctAnswerText}</span></p>` : ''}
-            <details>
-              <summary style="cursor: pointer; color: #0277bd; font-weight: bold;">解説を見る</summary>
-              <div style="margin-top: 10px; border-left: 3px solid #0288d1; padding-left: 10px;">
-                ${question.explanation}
+          quizData.forEach((question, index) => {
+            const isCorrect = userAnswers[index] === question.answer;
+            // 各カードに初期スタイル適用 (JS側でもopacity:0を指定)
+            resultHtml += `
+              <div class="result-card" style="opacity: 0; transform: translateY(20px);">
+                <h3>問題 ${index + 1}</h3>
+                <p class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+                  ${isCorrect ? '正解' : '不正解'}
+                </p>
+                <p><strong>質問:</strong> ${question.question}</p>
+                <p><strong>あなたの回答:</strong> ${shuffledOptions[userAnswers[index]] || '未回答'}</p> <!-- 修正：ユーザーが選択した選択肢を表示 -->
+                <p><strong>正解:</strong> ${question.options[question.answer]}</p>
+                <p><strong>説明:</strong> ${question.explanation}</p>
               </div>
-            </details>
-          </div>
-        `;
+            `;
+          });
+
+          resultHtml += `<button class="nav-button" style="opacity: 0; transform: translateY(20px);" onclick="restartQuiz()">もう一度挑戦する</button>`;
+          resultContainer.innerHTML = resultHtml;
+          resultContainer.style.display = 'block'; // 結果コンテナを表示可能に
+
+          // 結果ヘッダーのアニメーション
+          gsap.to("#result-container h2, #result-container p", {
+              duration: 0.5,
+              opacity: 1,
+              stagger: 0.1,
+              delay: 0.2
+          });
+
+          // 各結果カードと再挑戦ボタンのアニメーション
+          gsap.to(".result-card, #result-container .nav-button", {
+            duration: 0.6,
+            opacity: 1,
+            y: 0, // translateY(0)に戻す
+            stagger: 0.15,
+            ease: "power2.out",
+            delay: 0.5, // ヘッダー表示後
+            onComplete: () => { // 全カード表示完了後
+                isAnimating = false; // アニメーション終了
+            }
+          });
+
+          // 全問正解時のリンク表示アニメーション
+          if (percentage === 100) {
+            attendanceLink.innerHTML = `
+              <p>おめでとうございます！全問正解です。</p>
+              <a href="https://forms.gle/mHawecVCsxB6CHFC8" target="_blank">出席確認フォームに回答する</a>
+            `;
+            gsap.set(attendanceLink, { display: 'block' }); // 表示
+            gsap.to(attendanceLink, {
+              duration: 0.5,
+              opacity: 1,
+              y: 0,
+              delay: 1.0 // 他のアニメーション完了を待つ
+            });
+          }
+        }
       });
-
-      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
-      resultContainer.innerHTML = resultHtml;
-
-      if (percentage === 100) {
-        const attendanceLink = document.getElementById('attendance-link');
-        attendanceLink.style.display = 'block';
-        attendanceLink.innerHTML = `
-          <p>🎉 おめでとうございます！全問正解です！ 🎉</p>
-          <a href="https://forms.gle/ED3phnAb8UNUgntR9" target="_blank">出席確認フォームに回答する</a>
-        `;
-      } else {
-         document.getElementById('attendance-link').style.display = 'none';
-      }
     }
 
+    // クイズをリスタート
     function restartQuiz() {
+      if (isAnimating) return;
+
       currentQuestion = 0;
       score = 0;
       userAnswers = [];
       shuffledOptions = [];
-      selectedOptionElement = null; // 選択状態リセット
-      document.getElementById('quiz-container').style.display = 'block';
-      document.getElementById('result-container').innerHTML = '';
-      document.getElementById('attendance-link').style.display = 'none';
-      loadQuestion();
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      const attendanceLink = document.getElementById('attendance-link');
+
+      isAnimating = true; // アニメーション開始
+
+       // 結果コンテナと出席リンクをフェードアウト
+      gsap.to([resultContainer, attendanceLink], {
+          duration: 0.4,
+          opacity: 0,
+          y: -20,
+          ease: "power1.in",
+          onComplete: () => {
+              resultContainer.innerHTML = ''; // 内容クリア
+              resultContainer.style.display = 'none'; // 非表示
+              attendanceLink.style.display = 'none'; // 非表示
+              attendanceLink.style.opacity = 0; // opacityリセット
+
+              // クイズコンテナをフェードイン表示
+              gsap.set(quizContainer, { display: 'block', opacity: 0, y: 20 }); // 初期状態
+              gsap.to(quizContainer, {
+                  duration: 0.5,
+                  opacity: 1,
+                  y: 0,
+                  ease: "power2.out",
+                  onComplete: () => {
+                      isAnimating = false; // アニメーション終了
+                      loadQuestion(); // 最初の問題をロード＆表示アニメーション
+                  }
+              });
+          }
+      });
     }
 
     // 初期ロード

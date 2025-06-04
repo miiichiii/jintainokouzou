@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第6回確認テスト（人体の構造）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      background-size: cover; 
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+
+}
+    .quiz-container, .result-card {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      color: #1d1d1f;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .option {
+      background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease 0.1s, transform 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .option:hover {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .option.selected {
+      background-color: #007aff;
+      color: #fff;
+    }
+    .option.disabled {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+      }
+    /* 正解時のグラデーション */
+.option.correct {
+  background: linear-gradient(135deg, #34c759, #a8e6cf); /* 正解のグラデーション */
+  color: #fff;
+}
+
+/* 不正解時のグラデーション */
+.option.incorrect {
+  background: linear-gradient(135deg, #ff3b30, #ff9a8b); /* 不正解のグラデーション */
+  color: #fff;
+}
+
+    .option::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option:active::after {
+      transform: scale(0.98);
+    }
+    .explanation {
+  margin-top: 20px;
+  font-size: 1em;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-left: 5px solid #4caf50;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 1; /* 修正 */
+  transition: opacity 0.3s ease;
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.explanation-icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+    .nav-button {
+  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover {
+  background: linear-gradient(135deg, #005bb5, #4aa0d3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button:active {
+  transform: scale(0.98);
+}
+    .result-card {
+      margin-bottom: 20px;
+    }
+    .result-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .result-status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .correct {
+      color: #34c759;
+    }
+    .incorrect {
+      color: #ff3b30;
+    }
+    #attendance-link {
+      background-color: #34c759;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+    #attendance-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #attendance-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center;">第6回確認テスト（人体の構造）</h1>
+    <div id="quiz-container" class="quiz-container">
+      <div id="quiz-content">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div id="result-container"></div>
+    <div id="attendance-link"></div>
+  </div>
+  
+  
+  <script>
+    const quizData = [
+  {
+    "question": "体幹と自由上肢をつなぐ上肢帯を構成する骨の正しい組み合わせはどれですか？",
+    "options": [
+      "上腕骨と鎖骨",
+      "肩甲骨と上腕骨",
+      "肩甲骨と鎖骨",
+      "鎖骨と胸骨"
+    ],
+    "answer": 2,
+    "explanation": "上肢帯は、体幹（胸郭）と自由上肢（上腕）を連結する部分で、肩甲骨と鎖骨から構成されます。"
+  },
+  {
+    "question": "上腕骨において、臨床的に骨折が最も好発する部位はどれですか？",
+    "options": [
+      "解剖頚",
+      "外科頚",
+      "大結節",
+      "三角筋粗面"
+    ],
+    "answer": 1,
+    "explanation": "外科頚は解剖頚の下方に位置し、骨の構造的に弱いため、転倒などによる骨折が起こりやすい部位です。"
+  },
+  {
+    "question": "上腕骨遠位端にあり、尺骨と関節を形成して肘の蝶番運動（屈曲・伸展）の主役となるのはどれですか？",
+    "options": [
+      "小頭",
+      "滑車",
+      "内側上顆",
+      "肘頭窩"
+    ],
+    "answer": 1,
+    "explanation": "上腕骨滑車は尺骨の滑車切痕と腕尺関節を形成し、蝶番関節として肘の屈曲・伸展運動を担います。小頭は橈骨と関節を形成します。"
+  },
+  {
+    "question": "前腕にある橈骨について正しい記述はどれですか？",
+    "options": [
+      "小指側に位置する。",
+      "肘頭を持つ。",
+      "上腕三頭筋が停止する。",
+      "遠位端に茎状突起を持つ。"
+    ],
+    "answer": 3,
+    "explanation": "橈骨は前腕の親指側に位置し、その遠位端には手関節の橈側（外側）の安定性に関与する茎状突起があります。肘頭は尺骨にあります。"
+  },
+  {
+    "question": "上腕二頭筋が停止する骨の部位はどれですか？",
+    "options": [
+      "尺骨粗面",
+      "橈骨粗面",
+      "上腕骨の大結節",
+      "尺骨の鈎状突起"
+    ],
+    "answer": 1,
+    "explanation": "上腕二頭筋は、その腱が橈骨の上部にある橈骨粗面に停止し、強力な前腕の回外と肘の屈曲作用を持ちます。"
+  },
+  {
+    "question": "前腕の回内・回外運動について、正しい記述はどれですか？",
+    "options": [
+      "主に腕尺関節の動きによって起こる。",
+      "尺骨が橈骨の周りを回旋する。",
+      "橈骨が尺骨の周りを回旋する。",
+      "前腕骨間膜はこの運動を阻害する。"
+    ],
+    "answer": 2,
+    "explanation": "前腕の回内・回外は、上橈尺関節と下橈尺関節を軸として、橈骨が尺骨の周りを回旋することで行われます。前腕骨間膜はこの運動を支え、安定させます。"
+  },
+  {
+    "question": "肘関節を構成する3つの関節に含まれないのはどれですか？",
+    "options": [
+      "腕尺関節",
+      "腕橈関節",
+      "上橈尺関節",
+      "下橈尺関節"
+    ],
+    "answer": 3,
+    "explanation": "肘関節は、腕尺関節、腕橈関節、上橈尺関節の3つが単一の関節包に包まれて構成されています。下橈尺関節は手関節側に位置します。"
+  },
+  {
+    "question": "手根骨の近位列を構成する骨はどれですか？",
+    "options": [
+      "有頭骨",
+      "有鉤骨",
+      "舟状骨",
+      "大菱形骨"
+    ],
+    "answer": 2,
+    "explanation": "手根骨の近位列は橈側（親指側）から、舟状骨、月状骨、三角骨、豆状骨で構成されます。有頭骨、有鉤骨、大菱形骨は遠位列の骨です。"
+  },
+  {
+    "question": "人の手の指骨に関する正しい記述はどれですか？",
+    "options": [
+      "全ての指は3つの指骨からなる。",
+      "母指は中節骨を欠く。",
+      "小指は基節骨と末節骨のみからなる。",
+      "指骨の総数は15本である。"
+    ],
+    "answer": 1,
+    "explanation": "母指（親指）は基節骨と末節骨の2節で構成されますが、第2〜5指は基節骨、中節骨、末節骨の3節で構成されます。そのため、母指は中節骨を欠いています。"
+  },
+  {
+    "question": "上腕骨の橈骨神経溝を走行する神経が障害されると、最も影響を受ける運動はどれですか？",
+    "options": [
+      "肘の屈曲",
+      "前腕の回内",
+      "手関節の背屈（伸展）",
+      "手指の屈曲"
+    ],
+    "answer": 2,
+    "explanation": "橈骨神経は主に前腕の伸筋群を支配しています。そのため、橈骨神経溝を通過するこの神経が障害されると、手関節や指を伸ばす（背屈・伸展）ことが困難になる「下垂手」という状態をきたします。"
+  },
+  {
+    "question": "橈骨頭を尺骨の橈骨切痕に保持し、前腕の回旋を可能にする輪状の靭帯はどれですか？",
+    "options": [
+      "内側側副靭帯",
+      "外側側副靭帯",
+      "橈骨輪状靭帯",
+      "方形靭帯"
+    ],
+    "answer": 2,
+    "explanation": "橈骨輪状靭帯は、橈骨頭を取り囲むように付着し、橈骨頭が脱臼しないように保持しつつ、スムーズな回内・回外運動を可能にしています。"
+  },
+  {
+    "question": "前腕の屈筋群の多くが起始する部位はどれですか？",
+    "options": [
+      "上腕骨の外側上顆",
+      "上腕骨の内側上顆",
+      "尺骨の肘頭",
+      "橈骨の茎状突起"
+    ],
+    "answer": 1,
+    "explanation": "多くの前腕屈筋群は上腕骨の内側上顆から起始します。一方、伸筋群の多くは外側上顆から起始します。"
+  },
+  {
+    "question": "手根骨の遠位列に含まれない骨はどれですか？",
+    "options": [
+      "大菱形骨",
+      "小菱形骨",
+      "月状骨",
+      "有鉤骨"
+    ],
+    "answer": 2,
+    "explanation": "手根骨の遠位列は、大菱形骨、小菱形骨、有頭骨、有鉤骨から構成されます。月状骨は近位列に属します。"
+  },
+  {
+    "question": "人間特有の精巧な把握動作や対立運動を可能にする、母指の付け根にある特徴的な関節はどれですか？",
+    "options": [
+      "蝶番関節",
+      "車軸関節",
+      "球関節",
+      "鞍関節"
+    ],
+    "answer": 3,
+    "explanation": "母指の手根中手関節（CM関節）は、馬の鞍のような形をした鞍関節であり、屈曲・伸展、内転・外転、そして対立運動という多軸性の運動を可能にしています。"
+  },
+  {
+    "question": "自由上肢骨を近位から遠位へ正しく並べているのはどれですか？",
+    "options": [
+      "上腕骨 → 手根骨 → 橈骨・尺骨 → 中手骨 → 指骨",
+      "上腕骨 → 橈骨・尺骨 → 中手骨 → 手根骨 → 指骨",
+      "上腕骨 → 橈骨・尺骨 → 手根骨 → 中手骨 → 指骨",
+      "鎖骨 → 上腕骨 → 橈骨・尺骨 → 手根骨 → 指骨"
+    ],
+    "answer": 2,
+    "explanation": "自由上肢の骨格は、体幹に近い方から上腕（上腕骨）、前腕（橈骨・尺骨）、手（手根骨、中手骨、指骨）の順に配列されています。鎖骨は上肢帯の骨です。"
+  }
+]
+;
+
+      let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let shuffledOptions = [];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+
+      shuffledOptions = shuffleArray([...question.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      document.getElementById('options').innerHTML = optionsHtml;
+
+      // 解説のリセット
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.style.opacity = '0';
+      explanationEl.style.display = 'none';
+    }
+
+    function selectOption(index) {
+  const options = document.querySelectorAll('.option');
+  if (options[index].classList.contains('disabled')) {
+    return;
+  }
+
+  // すべての選択肢を無効化
+  options.forEach(option => {
+    option.classList.add('disabled');
+  });
+
+  // 選択肢を選んだときに`selected`クラスを追加
+  options[index].classList.add('selected');
+
+  // 現在の問題を取得
+  const question = quizData[currentQuestion];
+  const selectedAnswerIndex = question.options.indexOf(shuffledOptions[index]);
+  userAnswers[currentQuestion] = selectedAnswerIndex;
+
+  // 解説の表示内容を設定
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.innerHTML = `
+    <div class="explanation-header">
+      <span class="explanation-icon">💡</span>
+      解説
+    </div>
+    ${question.explanation}
+  `;
+  
+  // 一旦解説を見えないようにしてから表示の遅延を設定
+  explanationEl.style.opacity = '0';
+  explanationEl.style.display = 'block'; // まず表示を「block」にする
+
+  // 遅延を設定して解説をフェードイン
+  setTimeout(() => {
+    explanationEl.style.opacity = '1'; // 遅れてopacityを1にする
+  }, 200); // 200msの遅延を設定
+
+  // 正解・不正解のクラスを付与してグラデーションを適用
+  if (selectedAnswerIndex === question.answer) {
+    explanationEl.style.backgroundColor = '#e8f5e9';
+    explanationEl.style.borderLeftColor = '#4caf50';
+    options[index].classList.add('correct'); // 正解時に`correct`クラスを追加
+  } else {
+    explanationEl.style.backgroundColor = '#ffebee';
+    explanationEl.style.borderLeftColor = '#f44336';
+    options[index].classList.add('incorrect'); // 不正解時に`incorrect`クラスを追加
+  }
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+  explanationEl.style.opacity = '0'; // 解説のopacityをリセット
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+}
+    function nextQuestion() {
+      const selectedOption = document.querySelector('.option.selected');
+      if (selectedOption === null) {
+        alert('選択肢を選んでください');
+        return; 
+      }
+
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      score = userAnswers.reduce((total, answer, index) => 
+        total + (answer === quizData[index].answer ? 1 : 0), 0);
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.style.display = 'none';
+
+      const percentage = (score / quizData.length) * 100;
+      let resultHtml = `
+        <h2>クイズ結果</h2>
+        <p>正解数: ${score} / ${quizData.length}</p>
+        <p>正答率: ${percentage.toFixed(2)}%</p>
+      `;
+
+      quizData.forEach((question, index) => {
+        const isCorrect = userAnswers[index] === question.answer;
+        resultHtml += `
+          <div class="result-card">
+            <h3>問題 ${index + 1}</h3>
+            <p class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+              ${isCorrect ? '正解' : '不正解'}
+            </p>
+            <p><strong>質問:</strong> ${question.question}</p>
+            <p><strong>あなたの回答:</strong> ${question.options[userAnswers[index]] || '未回答'}</p>
+            <p><strong>正解:</strong> ${question.options[question.answer]}</p>
+            <p><strong>説明:</strong> ${question.explanation}</p>
+          </div>
+        `;
+      });
+
+      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
+      resultContainer.innerHTML = resultHtml;
+
+      if (percentage === 100) {
+        const attendanceLink = document.getElementById('attendance-link');
+        attendanceLink.style.display = 'block';
+        attendanceLink.innerHTML = `
+          <p>おめでとうございます！全問正解です。</p>
+          <a href="https://forms.gle/YfRnccQDg63MfQuY9" target="_blank">出席確認フォームに回答する</a>
+        `;
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      shuffledOptions = [];
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = '';
+      document.getElementById('attendance-link').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

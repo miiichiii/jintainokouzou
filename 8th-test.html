@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第8回確認テスト（人体の構造）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      background-size: cover; 
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+
+}
+    .quiz-container, .result-card {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      color: #1d1d1f;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .option {
+      background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease 0.1s, transform 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .option:hover {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .option.selected {
+      background-color: #007aff;
+      color: #fff;
+    }
+    .option.disabled {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+      }
+    /* 正解時のグラデーション */
+.option.correct {
+  background: linear-gradient(135deg, #34c759, #a8e6cf); /* 正解のグラデーション */
+  color: #fff;
+}
+
+/* 不正解時のグラデーション */
+.option.incorrect {
+  background: linear-gradient(135deg, #ff3b30, #ff9a8b); /* 不正解のグラデーション */
+  color: #fff;
+}
+
+    .option::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option:active::after {
+      transform: scale(0.98);
+    }
+    .explanation {
+  margin-top: 20px;
+  font-size: 1em;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-left: 5px solid #4caf50;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 1; /* 修正 */
+  transition: opacity 0.3s ease;
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.explanation-icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+    .nav-button {
+  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover {
+  background: linear-gradient(135deg, #005bb5, #4aa0d3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button:active {
+  transform: scale(0.98);
+}
+    .result-card {
+      margin-bottom: 20px;
+    }
+    .result-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .result-status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .correct {
+      color: #34c759;
+    }
+    .incorrect {
+      color: #ff3b30;
+    }
+    #attendance-link {
+      background-color: #34c759;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+    #attendance-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #attendance-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center;">第8回確認テスト（人体の構造）</h1>
+    <div id="quiz-container" class="quiz-container">
+      <div id="quiz-content">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div id="result-container"></div>
+    <div id="attendance-link"></div>
+  </div>
+  
+  
+  <script>
+    const quizData = ```json
+[
+  {
+    "question": "呼吸器系の機能である「換気」とは、具体的にどのような働きを指しますか？",
+    "options": [
+      "肺胞で酸素と二酸化炭素を交換すること",
+      "肺に空気を出し入れする動き",
+      "血液中のガスを細胞に運ぶこと",
+      "異物や細菌を貪食すること"
+    ],
+    "answer": 1,
+    "explanation": "換気とは、肺に空気を出し入れする動きを指します。ガス交換は肺胞で行われる酸素と二酸化炭素の交換です。"
+  },
+  {
+    "question": "左肺が右肺よりも小さい主な理由は何ですか？",
+    "options": [
+      "横隔膜が右側で高いから",
+      "肝臓が右側にあるから",
+      "心臓が左側に偏って位置しているから",
+      "気管が右側に傾いているから"
+    ],
+    "answer": 2,
+    "explanation": "心臓が胸腔内の左側に偏っているため、左肺は心臓が収まるスペース分だけ小さく、2つの肺葉しかありません。"
+  },
+  {
+    "question": "肺胞の虚脱（つぶれること）を防ぎ、ガス交換を助ける物質は何ですか？",
+    "options": [
+      "ヘモグロビン",
+      "ムチン",
+      "サーファクタント",
+      "リゾチーム"
+    ],
+    "answer": 2,
+    "explanation": "II型肺胞上皮細胞から分泌されるサーファクタント（肺胞表面活性物質）が、肺胞の表面張力を低下させ、虚脱を防ぎます。"
+  },
+  {
+    "question": "肺胞で吸い込んだ異物や細菌を処理する免疫細胞の名称はどれですか？",
+    "options": [
+      "I型肺胞上皮細胞",
+      "II型肺胞上皮細胞",
+      "肺胞マクロファージ",
+      "赤血球"
+    ],
+    "answer": 2,
+    "explanation": "肺胞マクロファージは塵埃細胞とも呼ばれ、吸い込んだ異物や細菌を貪食し、肺を清浄に保つ役割を担っています。"
+  },
+  {
+    "question": "肺胞と毛細血管の間でガス交換が行われる物理的な原理は何ですか？",
+    "options": [
+      "浸透圧",
+      "能動輸送",
+      "拡散（分圧の差）",
+      "ろ過"
+    ],
+    "answer": 2,
+    "explanation": "ガス交換は、肺胞内と毛細血管内のガス分圧の差による拡散という物理現象によって、エネルギーを使わずに行われます。"
+  },
+  {
+    "question": "安静呼吸時における最も強力な呼吸筋はどれですか？",
+    "options": [
+      "外肋間筋",
+      "内肋間筋",
+      "腹直筋",
+      "横隔膜"
+    ],
+    "answer": 3,
+    "explanation": "横隔膜は胸腔と腹腔を隔てるドーム状の筋肉で、最も強力な呼吸筋です。"
+  },
+  {
+    "question": "安静時吸気（息を吸う時）に起こる現象として正しいのはどれですか？",
+    "options": [
+      "横隔膜が弛緩して挙上する",
+      "外肋間筋が収縮して肋骨が下がる",
+      "胸郭の容積が減少し、肺が縮む",
+      "横隔膜が収縮して下がり、胸郭が広がる"
+    ],
+    "answer": 3,
+    "explanation": "吸気時には、横隔膜が収縮して下がり、外肋間筋が収縮して肋骨が持ち上がることで胸郭の容積が増大し、肺が膨らみます。"
+  },
+  {
+    "question": "何らかの原因で胸膜腔に空気が入り、肺が虚脱してしまう状態を何と呼びますか？",
+    "options": [
+      "肺炎",
+      "気胸",
+      "肺気腫",
+      "無気肺"
+    ],
+    "answer": 1,
+    "explanation": "胸膜腔に空気が入る状態を「気胸」と呼びます。これにより胸腔内陰圧が失われ、肺が虚脱した状態が「無気肺」です。"
+  },
+  {
+    "question": "鼻腔が持つ機能として、正しくないものはどれですか？",
+    "options": [
+      "吸気の加温・加湿",
+      "味覚の感知",
+      "異物の除去",
+      "発声時の共鳴"
+    ],
+    "answer": 1,
+    "explanation": "鼻腔の機能は、吸気の加温・加湿、異物除去、嗅覚、発声時の共鳴です。味覚は主に舌で感知されます。"
+  },
+  {
+    "question": "食べ物を飲み込む（嚥下）際に、食物が気管に入るのを防ぐ役割を持つ構造はどれですか？",
+    "options": [
+      "声帯",
+      "甲状軟骨",
+      "喉頭蓋",
+      "輪状軟骨"
+    ],
+    "answer": 2,
+    "explanation": "嚥下時には、喉頭蓋が反射的に気道の入り口（喉頭口）を塞ぎ、食物が気管へ入る「誤嚥」を防ぎます。"
+  },
+  {
+    "question": "声の元となる音（喉頭原音）は、どの部位が振動することで作られますか？",
+    "options": [
+      "咽頭",
+      "鼻腔",
+      "声帯",
+      "口蓋垂"
+    ],
+    "answer": 2,
+    "explanation": "喉頭内部にある声帯が、肺からの呼気によって振動することで、声の元となる喉頭原音が作られます。"
+  },
+  {
+    "question": "気道は、どの部分を境に上気道と下気道に分けられますか？",
+    "options": [
+      "咽頭",
+      "喉頭",
+      "気管分岐部",
+      "鼻腔"
+    ],
+    "answer": 1,
+    "explanation": "気道は、喉頭を境に、それより上が上気道（鼻腔、咽頭など）、下が下気道（気管、気管支など）に分けられます。"
+  },
+  {
+    "question": "気管支が肺の中で木の枝のように分岐する構造を何と呼びますか？",
+    "options": [
+      "肺胞樹",
+      "気管支樹",
+      "呼吸樹",
+      "肺門"
+    ],
+    "answer": 1,
+    "explanation": "気管支は肺の中で枝分かれを繰り返し、その様子が木のように見えることから気管支樹と呼ばれます。"
+  },
+  {
+    "question": "肺がん手術などで、病変部を切除する際の機能的な単位として重要なのはどれですか？",
+    "options": [
+      "肺葉",
+      "肺胞",
+      "肺区域",
+      "気管支"
+    ],
+    "answer": 2,
+    "explanation": "肺区域は独立した気管支や血管を持つ機能的な単位であり、手術で病変のある区域だけを切除する「区域切除術」の基本単位となります。"
+  },
+  {
+    "question": "正しい肺区域の数はどれですか？",
+    "options": [
+      "右肺が10区域、左肺が10区域",
+      "右肺が8区域、左肺が10区域",
+      "右肺が10区域、左肺が8区域",
+      "右肺が8区域、左肺が8区域"
+    ],
+    "answer": 2,
+    "explanation": "肺区域は、右肺が10区域、左肺が8区域に分けられるのが一般的です。"
+  }
+]
+```
+;
+
+      let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let shuffledOptions = [];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+
+      shuffledOptions = shuffleArray([...question.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      document.getElementById('options').innerHTML = optionsHtml;
+
+      // 解説のリセット
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.style.opacity = '0';
+      explanationEl.style.display = 'none';
+    }
+
+    function selectOption(index) {
+  const options = document.querySelectorAll('.option');
+  if (options[index].classList.contains('disabled')) {
+    return;
+  }
+
+  // すべての選択肢を無効化
+  options.forEach(option => {
+    option.classList.add('disabled');
+  });
+
+  // 選択肢を選んだときに`selected`クラスを追加
+  options[index].classList.add('selected');
+
+  // 現在の問題を取得
+  const question = quizData[currentQuestion];
+  const selectedAnswerIndex = question.options.indexOf(shuffledOptions[index]);
+  userAnswers[currentQuestion] = selectedAnswerIndex;
+
+  // 解説の表示内容を設定
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.innerHTML = `
+    <div class="explanation-header">
+      <span class="explanation-icon">💡</span>
+      解説
+    </div>
+    ${question.explanation}
+  `;
+  
+  // 一旦解説を見えないようにしてから表示の遅延を設定
+  explanationEl.style.opacity = '0';
+  explanationEl.style.display = 'block'; // まず表示を「block」にする
+
+  // 遅延を設定して解説をフェードイン
+  setTimeout(() => {
+    explanationEl.style.opacity = '1'; // 遅れてopacityを1にする
+  }, 200); // 200msの遅延を設定
+
+  // 正解・不正解のクラスを付与してグラデーションを適用
+  if (selectedAnswerIndex === question.answer) {
+    explanationEl.style.backgroundColor = '#e8f5e9';
+    explanationEl.style.borderLeftColor = '#4caf50';
+    options[index].classList.add('correct'); // 正解時に`correct`クラスを追加
+  } else {
+    explanationEl.style.backgroundColor = '#ffebee';
+    explanationEl.style.borderLeftColor = '#f44336';
+    options[index].classList.add('incorrect'); // 不正解時に`incorrect`クラスを追加
+  }
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+  explanationEl.style.opacity = '0'; // 解説のopacityをリセット
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+}
+    function nextQuestion() {
+      const selectedOption = document.querySelector('.option.selected');
+      if (selectedOption === null) {
+        alert('選択肢を選んでください');
+        return; 
+      }
+
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      score = userAnswers.reduce((total, answer, index) => 
+        total + (answer === quizData[index].answer ? 1 : 0), 0);
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.style.display = 'none';
+
+      const percentage = (score / quizData.length) * 100;
+      let resultHtml = `
+        <h2>クイズ結果</h2>
+        <p>正解数: ${score} / ${quizData.length}</p>
+        <p>正答率: ${percentage.toFixed(2)}%</p>
+      `;
+
+      quizData.forEach((question, index) => {
+        const isCorrect = userAnswers[index] === question.answer;
+        resultHtml += `
+          <div class="result-card">
+            <h3>問題 ${index + 1}</h3>
+            <p class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+              ${isCorrect ? '正解' : '不正解'}
+            </p>
+            <p><strong>質問:</strong> ${question.question}</p>
+            <p><strong>あなたの回答:</strong> ${question.options[userAnswers[index]] || '未回答'}</p>
+            <p><strong>正解:</strong> ${question.options[question.answer]}</p>
+            <p><strong>説明:</strong> ${question.explanation}</p>
+          </div>
+        `;
+      });
+
+      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
+      resultContainer.innerHTML = resultHtml;
+
+      if (percentage === 100) {
+        const attendanceLink = document.getElementById('attendance-link');
+        attendanceLink.style.display = 'block';
+        attendanceLink.innerHTML = `
+          <p>おめでとうございます！全問正解です。</p>
+          <a href="https://forms.gle/MuVvyZw2EE8qGZ888" target="_blank">出席確認フォームに回答する</a>
+        `;
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      shuffledOptions = [];
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = '';
+      document.getElementById('attendance-link').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

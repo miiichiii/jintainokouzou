@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第11回確認テスト（人体の構造）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      background-size: cover; 
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+
+}
+    .quiz-container, .result-card {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .question {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+      color: #1d1d1f;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .option {
+      background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease 0.1s, transform 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .option:hover {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .option.selected {
+      background-color: #007aff;
+      color: #fff;
+    }
+    .option.disabled {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+      }
+    /* 正解時のグラデーション */
+.option.correct {
+  background: linear-gradient(135deg, #34c759, #a8e6cf); /* 正解のグラデーション */
+  color: #fff;
+}
+
+/* 不正解時のグラデーション */
+.option.incorrect {
+  background: linear-gradient(135deg, #ff3b30, #ff9a8b); /* 不正解のグラデーション */
+  color: #fff;
+}
+
+    .option::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option:active::after {
+      transform: scale(0.98);
+    }
+    .explanation {
+  margin-top: 20px;
+  font-size: 1em;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-left: 5px solid #4caf50;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 1; /* 修正 */
+  transition: opacity 0.3s ease;
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.explanation-icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+    .nav-button {
+  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover {
+  background: linear-gradient(135deg, #005bb5, #4aa0d3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-button:active {
+  transform: scale(0.98);
+}
+    .result-card {
+      margin-bottom: 20px;
+    }
+    .result-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .result-status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .correct {
+      color: #34c759;
+    }
+    .incorrect {
+      color: #ff3b30;
+    }
+    #attendance-link {
+      background-color: #34c759;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+    #attendance-link a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #attendance-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center;">第11回確認テスト（人体の構造）</h1>
+    <div id="quiz-container" class="quiz-container">
+      <div id="quiz-content">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <button id="next" class="nav-button" onclick="nextQuestion()">次の問題</button>
+    </div>
+    <div id="result-container"></div>
+    <div id="attendance-link"></div>
+  </div>
+  
+  
+  <script>
+    const quizData = [
+  {
+    "question": "腎臓の高さについて、正しい記述はどれですか？",
+    "options": [
+      "T8～L1の高さにある",
+      "T12～L3の高さにある",
+      "右腎が左腎よりやや高い位置にある",
+      "左右の高さは同じである"
+    ],
+    "answer": 1,
+    "explanation": "腎臓は第12胸椎（T12）から第3腰椎（L3）の高さに位置する。また、上部に肝臓が存在するため、右腎は左腎よりもやや低い位置にある。"
+  },
+  {
+    "question": "腎門を前方から後方へ見た場合、構造物の正しい配列はどれですか？",
+    "options": [
+      "腎動脈 → 腎静脈 → 尿管",
+      "腎静脈 → 尿管 → 腎動脈",
+      "尿管 → 腎動脈 → 腎静脈",
+      "腎静脈 → 腎動脈 → 尿管"
+    ],
+    "answer": 3,
+    "explanation": "腎門を前方から見ると、構造物は「腎静脈(Vein)、腎動脈(Artery)、尿管(Ureter)」の順に配列している。"
+  },
+  {
+    "question": "腎臓が1日に生成する原尿の量として、最も適切なものはどれですか？",
+    "options": [
+      "約1.5リットル",
+      "約15リットル",
+      "約150リットル",
+      "約50リットル"
+    ],
+    "answer": 2,
+    "explanation": "腎臓は1日に150リットル以上の原尿を生成し、そのうち99%以上を尿細管で再吸収する。"
+  },
+  {
+    "question": "腎機能が完全に失われた場合に起こりうる、致死的な状態として正しいものはどれですか？",
+    "options": [
+      "低カリウム血症による不整脈",
+      "高カリウム血症による心停止",
+      "脱水によるショック",
+      "高血圧による脳出血"
+    ],
+    "answer": 1,
+    "explanation": "腎機能が失われると、カリウムやアンモニアなどの毒素が体内に蓄積する。特に高カリウム血症は致死的な不整脈を引き起こし、心停止の原因となる。"
+  },
+  {
+    "question": "腎臓の機能単位であるネフロンを構成するものの組み合わせとして正しいものはどれですか？",
+    "options": [
+      "腎小体と集合管",
+      "糸球体と尿細管",
+      "腎小体と尿細管",
+      "ボウマン嚢と集合管"
+    ],
+    "answer": 2,
+    "explanation": "ネフロン（腎単位）は、血液を濾過する「腎小体」と、原尿から必要な物質を再吸収する「尿細管」から構成される。腎小体は糸球体とボウマン嚢からなる。"
+  },
+  {
+    "question": "血液の濾過が主に行われる腎臓の部位はどこですか？",
+    "options": [
+      "腎皮質",
+      "腎髄質",
+      "腎杯",
+      "腎盂"
+    ],
+    "answer": 0,
+    "explanation": "血液の濾過は、濾過装置である糸球体で行われる。糸球体は腎臓の表層部分である腎皮質に主に存在している。"
+  },
+  {
+    "question": "糸球体における濾過（ろか）のプロセスで、通常は濾過されず血液中に残るものはどれですか？",
+    "options": [
+      "水分",
+      "ブドウ糖",
+      "赤血球",
+      "ナトリウムイオン"
+    ],
+    "answer": 2,
+    "explanation": "糸球体の濾過膜は、血球やタンパク質（アルブミンなど）のような大きな成分を通さず、水分やイオン、ブドウ糖などの小さな物質のみを通過させる選択的なフィルターである。"
+  },
+  {
+    "question": "一度破壊されると再生能力を持たない構造物はどれですか？",
+    "options": [
+      "尿細管",
+      "膀胱の上皮",
+      "糸球体",
+      "尿管の平滑筋"
+    ],
+    "answer": 2,
+    "explanation": "糸球体は非常に繊細な毛細血管の集合体であり、一度破壊されると再生する能力を持たない。そのため、加齢や疾患によりその数は減少していく。"
+  },
+  {
+    "question": "腎臓で作られた尿が、尿管を通って膀胱へ運ばれる仕組みとして正しいものはどれですか？",
+    "options": [
+      "重力によって自然に落下する",
+      "尿管の平滑筋の蠕動運動によって運ばれる",
+      "腹圧によって押し出される",
+      "腎臓からの圧力によって押し流される"
+    ],
+    "answer": 1,
+    "explanation": "尿は重力だけで流れるのではなく、尿管壁の平滑筋がリズミカルに収縮する蠕動（ぜんどう）運動によって、腎臓から膀胱へと積極的に運ばれる。"
+  },
+  {
+    "question": "成人が尿意を感じ始める一般的な膀胱の内容量はどれですか？",
+    "options": [
+      "50-100mL",
+      "150-300mL",
+      "400-500mL",
+      "600-800mL"
+    ],
+    "answer": 1,
+    "explanation": "成人の膀胱では、尿が150-300mL程度貯まると、膀胱壁の伸展受容器が刺激され、その情報が脳に伝わることで尿意が生じる。"
+  },
+  {
+    "question": "排尿において、自分の意思でコントロールできる随意筋はどれですか？",
+    "options": [
+      "排尿筋",
+      "内尿道括約筋",
+      "外尿道括約筋",
+      "膀胱三角"
+    ],
+    "answer": 2,
+    "explanation": "外尿道括約筋は体性神経支配の横紋筋であり、随意的なコントロールが可能である。一方、膀胱の壁を構成する排尿筋や、膀胱の出口にある内尿道括約筋は、自律神経支配の平滑筋であり不随意筋である。"
+  },
+  {
+    "question": "腎臓の血管走行について、腎動脈から糸球体に向かう動脈の枝分かれの順として正しいものはどれですか？",
+    "options": [
+      "弓状動脈 → 葉間動脈 → 小葉間動脈",
+      "葉間動脈 → 小葉間動脈 → 弓状動脈",
+      "葉間動脈 → 弓状動脈 → 小葉間動脈",
+      "小葉間動脈 → 弓状動脈 → 葉間動脈"
+    ],
+    "answer": 2,
+    "explanation": "腎動脈は腎臓内で、葉間動脈→弓状動脈→小葉間動脈の順に枝分かれする。小葉間動脈からさらに輸入細動脈が分岐し、糸球体を形成する。"
+  },
+  {
+    "question": "膀胱や尿管の内腔を覆い、臓器の伸展・収縮に対応できる特殊な上皮はどれですか？",
+    "options": [
+      "扁平上皮",
+      "立方上皮",
+      "移行上皮",
+      "円柱上皮"
+    ],
+    "answer": 2,
+    "explanation": "移行上皮は細胞の形を変化させることで、組織の表面積を大きく変えることができる特殊な上皮である。尿量によって容積が大きく変化する膀胱や尿管の粘膜に見られる。"
+  },
+  {
+    "question": "腎不全につながる病態として、糸球体の破壊を主な原因とするものの組み合わせはどれですか？",
+    "options": [
+      "高尿酸血症と腎盂腎炎",
+      "腎臓癌と多発性嚢胞腎",
+      "糖尿病腎症と慢性糸球体腎炎",
+      "ネフローゼ症候群と急性腎不全"
+    ],
+    "answer": 2,
+    "explanation": "腎不全の主要な原因である糖尿病腎症や慢性糸球体腎炎は、共に糸球体に持続的なダメージを与え、その濾過機能を破壊することで進行する。"
+  },
+  {
+    "question": "糸球体で濾過されて原尿となり、その後、尿細管でほぼ100%再吸収されるため、健康な人の尿中にはほとんど排出されない物質はどれですか？",
+    "options": [
+      "尿素",
+      "クレアチニン",
+      "ブドウ糖",
+      "カリウムイオン"
+    ],
+    "answer": 2,
+    "explanation": "ブドウ糖は分子が小さいため糸球体で濾過されて原尿に含まれるが、近位尿細管で100%再吸収される。そのため、血糖値が正常であれば最終的な尿には現れない。血糖値が再吸収の能力を超えて著しく高い場合に尿糖として検出される。"
+  }
+]
+;
+
+      let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let shuffledOptions = [];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function loadQuestion() {
+      const question = quizData[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+
+      shuffledOptions = shuffleArray([...question.options]);
+      const optionsHtml = shuffledOptions.map((option, index) => `
+        <div class="option" onclick="selectOption(${index})">${option}</div>
+      `).join('');
+
+      document.getElementById('options').innerHTML = optionsHtml;
+
+      // 解説のリセット
+      const explanationEl = document.getElementById('explanation');
+      explanationEl.style.opacity = '0';
+      explanationEl.style.display = 'none';
+    }
+
+    function selectOption(index) {
+  const options = document.querySelectorAll('.option');
+  if (options[index].classList.contains('disabled')) {
+    return;
+  }
+
+  // すべての選択肢を無効化
+  options.forEach(option => {
+    option.classList.add('disabled');
+  });
+
+  // 選択肢を選んだときに`selected`クラスを追加
+  options[index].classList.add('selected');
+
+  // 現在の問題を取得
+  const question = quizData[currentQuestion];
+  const selectedAnswerIndex = question.options.indexOf(shuffledOptions[index]);
+  userAnswers[currentQuestion] = selectedAnswerIndex;
+
+  // 解説の表示内容を設定
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.innerHTML = `
+    <div class="explanation-header">
+      <span class="explanation-icon">💡</span>
+      解説
+    </div>
+    ${question.explanation}
+  `;
+  
+  // 一旦解説を見えないようにしてから表示の遅延を設定
+  explanationEl.style.opacity = '0';
+  explanationEl.style.display = 'block'; // まず表示を「block」にする
+
+  // 遅延を設定して解説をフェードイン
+  setTimeout(() => {
+    explanationEl.style.opacity = '1'; // 遅れてopacityを1にする
+  }, 200); // 200msの遅延を設定
+
+  // 正解・不正解のクラスを付与してグラデーションを適用
+  if (selectedAnswerIndex === question.answer) {
+    explanationEl.style.backgroundColor = '#e8f5e9';
+    explanationEl.style.borderLeftColor = '#4caf50';
+    options[index].classList.add('correct'); // 正解時に`correct`クラスを追加
+  } else {
+    explanationEl.style.backgroundColor = '#ffebee';
+    explanationEl.style.borderLeftColor = '#f44336';
+    options[index].classList.add('incorrect'); // 不正解時に`incorrect`クラスを追加
+  }
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+  explanationEl.style.opacity = '0'; // 解説のopacityをリセット
+}
+
+function loadQuestion() {
+  const question = quizData[currentQuestion];
+  document.getElementById('question').textContent = question.question;
+
+  shuffledOptions = shuffleArray([...question.options]);
+  const optionsHtml = shuffledOptions.map((option, index) => `
+    <div class="option" onclick="selectOption(${index})">${option}</div>
+  `).join('');
+
+  document.getElementById('options').innerHTML = optionsHtml;
+
+  // 解説のリセット
+  const explanationEl = document.getElementById('explanation');
+  explanationEl.style.display = 'none'; // 解説を非表示に
+}
+    function nextQuestion() {
+      const selectedOption = document.querySelector('.option.selected');
+      if (selectedOption === null) {
+        alert('選択肢を選んでください');
+        return; 
+      }
+
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      score = userAnswers.reduce((total, answer, index) => 
+        total + (answer === quizData[index].answer ? 1 : 0), 0);
+
+      const resultContainer = document.getElementById('result-container');
+      const quizContainer = document.getElementById('quiz-container');
+      quizContainer.style.display = 'none';
+
+      const percentage = (score / quizData.length) * 100;
+      let resultHtml = `
+        <h2>クイズ結果</h2>
+        <p>正解数: ${score} / ${quizData.length}</p>
+        <p>正答率: ${percentage.toFixed(2)}%</p>
+      `;
+
+      quizData.forEach((question, index) => {
+        const isCorrect = userAnswers[index] === question.answer;
+        resultHtml += `
+          <div class="result-card">
+            <h3>問題 ${index + 1}</h3>
+            <p class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+              ${isCorrect ? '正解' : '不正解'}
+            </p>
+            <p><strong>質問:</strong> ${question.question}</p>
+            <p><strong>あなたの回答:</strong> ${question.options[userAnswers[index]] || '未回答'}</p>
+            <p><strong>正解:</strong> ${question.options[question.answer]}</p>
+            <p><strong>説明:</strong> ${question.explanation}</p>
+          </div>
+        `;
+      });
+
+      resultHtml += `<button class="nav-button" onclick="restartQuiz()">もう一度挑戦する</button>`;
+      resultContainer.innerHTML = resultHtml;
+
+      if (percentage === 100) {
+        const attendanceLink = document.getElementById('attendance-link');
+        attendanceLink.style.display = 'block';
+        attendanceLink.innerHTML = `
+          <p>おめでとうございます！全問正解です。</p>
+          <a href="https://forms.gle/6fHEMidcPXDv7tDi9" target="_blank">出席確認フォームに回答する</a>
+        `;
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = [];
+      shuffledOptions = [];
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = '';
+      document.getElementById('attendance-link').style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
